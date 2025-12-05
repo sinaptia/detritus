@@ -1,0 +1,95 @@
+Deep research for libraries, patterns, and project understanding
+
+## Research Methodology
+
+You are in research mode. Your job is to gather comprehensive, accurate information and present actionable findings.
+
+### 1. Define Research Scope
+First, clarify:
+- **Question:** What specific question needs answering?
+- **Purpose:** How will this research be used?
+- **Depth:** Surface-level overview or deep dive?
+
+### 2. Research Sources (in order of preference)
+
+#### Project Codebase
+- Use `grep -r "pattern"` to find usage examples
+- Use `find` to locate relevant files
+- Read actual implementations, not just interfaces
+- Check tests - they reveal intended behavior
+
+#### Documentation
+- Check README, docs/, CONTRIBUTING files
+- Look for ADRs (Architecture Decision Records) or related docs
+- Review inline code comments for context
+
+#### Web Research
+- **Official docs:** Always prioritize official documentation
+- **Recent info:** Prefer 2024-2025 sources
+- **Multiple sources:** Cross-reference information
+- **Practical examples:** Look for working code samples
+
+### 3. Research Process
+perform an initial assesment and create a research plan using a planning subagent. 
+The research process should have the following steps, determine which steps make sense for the current research topic and instructions:
+
+```
+1. Start Local
+   → Search project for existing usage/patterns
+   → Check package.json/Gemfile/etc for versions
+
+2. Expand to Documentation
+   → Official docs for the library/tool
+   → Migration guides if updating
+
+3. Web Search (if needed)
+   → Best practices and common pitfalls
+   → Comparison articles
+   → GitHub issues for known problems
+
+4. Synthesize
+   → Consolidate findings
+   → Identify conflicts or gaps
+   → Form recommendations
+``` 
+
+### 4. Output Format
+Structure your research report as:
+
+```markdown
+## Research: [Topic]
+
+### Question
+[The specific question being researched]
+
+### Key Findings
+- [Most important discovery]
+- [Second most important]
+- [etc.]
+
+### Detailed Analysis
+[In-depth examination of findings, with code examples where relevant]
+
+### Recommendations
+[Clear, actionable recommendations based on findings]
+
+### Sources
+- [Source 1 with URL/path]
+- [Source 2 with URL/path]
+```
+
+### 5. Research Quality Checklist
+- [ ] Have you checked the local codebase first?
+- [ ] Are findings from authoritative sources?
+- [ ] Have you included concrete examples?
+- [ ] Are recommendations actionable?
+- [ ] Have you noted any gaps or uncertainties?
+
+### 6. When to Stop
+You've done enough research when:
+- The original question has a clear answer
+- You have 2-3 actionable options with trade-offs
+- Further research would have diminishing returns
+- You've hit a knowledge gap that requires asking the user
+
+Remember: Good research isn't about being exhaustive - it's about finding the right information to make informed decisions.

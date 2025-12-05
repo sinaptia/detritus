@@ -1,0 +1,671 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"Use your web search capabilities
+        to compile a comprehensive answer to the following query. Use as many searches
+        as possible.\n"}]},{"role":"user","parts":[{"text":"Ruby programming language"}]}],"generationConfig":{},"tools":[{"google_search":{}}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Wed, 04 Feb 2026 18:28:29 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=19665
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "Ruby is a dynamic, open-source, object-oriented programming language designed in the mid-1990s by Yukihiro \"Matz\" Matsumoto in Japan with a focus on programmer happiness and productivity. It is a general-purpose, interpreted language that emphasizes simplicity and an intuitive syntax, making it feel almost like coding in natural English.\n\n### Key Features of Ruby\n\nRuby boasts several distinguishing features that contribute to its appeal:\n*   **Pure Object-Oriented Design** Every value in Ruby, including primitive data types, is an object. This allows for consistent manipulation and method calls across all data.\n*   **Elegant and Readable Syntax** Ruby's syntax is designed for high readability, minimizing complex symbols and verbose constructs, which makes it beginner-friendly and easier to maintain.\n*   **Dynamic Typing** Variables in Ruby are dynamically typed, meaning a variable can hold different types of objects throughout its lifecycle, offering significant flexibility.\n*   **Duck Typing** The language focuses on an object's behavior rather than its explicit type. If an object \"quacks like a duck\" (i.e., responds to the same methods), Ruby treats it as that type.\n*   **Metaprogramming** Ruby allows developers to write code that generates or modifies other code at runtime, enabling highly expressive and concise solutions while reducing repetition.\n*   **Flexibility** Developers can freely alter parts of Ruby, even redefining or removing essential components, giving them considerable control over the language's behavior.\n*   **Blocks and Iterators** Ruby offers powerful functionality through \"blocks,\" which are unnamed chunks of code that can be passed to methods, creating robust iterators.\n*   **Rich Ecosystem (Gems)** The language has a vast collection of libraries, known as \"gems,\" that support a wide range of development needs, from web applications to data processing.\n*   **Portability** Ruby is highly portable and can run on various operating systems, including GNU/Linux, UNIX, macOS, Windows, DOS, BeOS, and OS/2.\n*   **Concurrency Features** It supports native thread creation and management, allowing for multi-threading to execute several tasks simultaneously and improve application responsiveness.\n*   **Automatic Garbage Collection** Ruby includes a true mark-and-sweep garbage collector, simplifying memory management for developers.\n\n### Advantages of Using Ruby\n\nProgrammers often choose Ruby for several reasons:\n*   **Developer Productivity and Happiness** Ruby's design prioritizes making programmers happy, leading to an enjoyable coding experience and faster development.\n*   **Rapid Application Development (RAD)** Its simplicity, expressiveness, and rich ecosystem (especially with Ruby on Rails) enable quick creation and iteration of applications, making it ideal for startups and testing business ideas.\n*   **Readability and Maintainability** The natural language-like syntax results in code that is easier to read, understand, and maintain over time.\n*   **Strong and Supportive Community** Ruby benefits from a vibrant, welcoming, and active community that contributes to its extensive library ecosystem and offers support to developers.\n*   **Cost-Effectiveness** The speed of development often translates into reduced development time and, consequently, lower project costs.\n*   **Security** Ruby places a strong emphasis on securing solutions built with it.\n\n### Disadvantages and Criticisms\n\nDespite its strengths, Ruby also has some limitations:\n*   **Performance** Ruby applications can sometimes be slower in runtime performance compared to languages like Java or C++, which can be a drawback for highly performance-critical applications or those with a very large user base.\n*   **Scalability Concerns** While capable of scaling, some larger applications may experience performance bottlenecks, particularly when dealing with extensive database connections, depending on efficient code and architecture.\n*   **Memory Usage** Ruby can sometimes exhibit higher memory consumption.\n*   **Documentation Gaps** While popular libraries (gems) are well-documented, some lesser-known gems might have incomplete or outdated documentation, potentially hindering development.\n*   **Perceived Decline in Popularity** After a peak in popularity in the web domain between 2007 and 2013, Ruby's overall standing in various programming language indices has seen a decline, with the TIOBE Index reporting it fell out of the top 20 in 2025. This can sometimes lead to a smaller pool of new Ruby developers compared to other languages like Python or JavaScript.\n\n### Ruby on Rails\n\nRuby on Rails (often shortened to Rails) is a server-side web application framework written in Ruby that has been pivotal in defining Ruby's reputation. It follows the Model-View-Controller (MVC) architectural pattern and champions principles like \"Convention over Configuration\" (CoC) and \"Don't Repeat Yourself\" (DRY), which streamline web development by minimizing repetitive code and providing sensible defaults. Rails revolutionized web development in 2005 with features like seamless database table creation, migrations, and scaffolding, enabling rapid application development.\n\n### Use Cases and Current Status\n\nWhile Ruby is a general-purpose language, its most prominent use case remains web development, largely thanks to Ruby on Rails. Major companies like GitHub, Shopify, Airbnb, Dribbble, Bloomberg, and CrunchBase have utilized Ruby on Rails for their platforms. Beyond web applications, Ruby is also widely used for:\n*   **Automation and Scripting**\n*   **Command-line Tools**\n*   **Data Processing and Analysis**\n*   **Web Scraping**\n*   **DevOps**\n*   **Desktop Applications**\n*   **Game Development** (e.g., DragonRuby)\n\nAlthough its \"hype cycle\" may have passed, Ruby and Rails continue to be solid choices for developers, particularly for startups and projects that prioritize developer productivity and rapid iteration. Recent versions of Ruby (like Ruby 3.3 and 3.4) have also introduced significant performance enhancements, including new JIT compilers (RJIT and YJIT) and improvements in memory usage and concurrency."
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0,
+              "groundingMetadata": {
+                "searchEntryPoint": {
+                  "renderedContent": "\u003cstyle\u003e\n.container {\n  align-items: center;\n  border-radius: 8px;\n  display: flex;\n  font-family: Google Sans, Roboto, sans-serif;\n  font-size: 14px;\n  line-height: 20px;\n  padding: 8px 12px;\n}\n.chip {\n  display: inline-block;\n  border: solid 1px;\n  border-radius: 16px;\n  min-width: 14px;\n  padding: 5px 16px;\n  text-align: center;\n  user-select: none;\n  margin: 0 8px;\n  -webkit-tap-highlight-color: transparent;\n}\n.carousel {\n  overflow: auto;\n  scrollbar-width: none;\n  white-space: nowrap;\n  margin-right: -12px;\n}\n.headline {\n  display: flex;\n  margin-right: 4px;\n}\n.gradient-container {\n  position: relative;\n}\n.gradient {\n  position: absolute;\n  transform: translate(3px, -9px);\n  height: 36px;\n  width: 9px;\n}\n@media (prefers-color-scheme: light) {\n  .container {\n    background-color: #fafafa;\n    box-shadow: 0 0 0 1px #0000000f;\n  }\n  .headline-label {\n    color: #1f1f1f;\n  }\n  .chip {\n    background-color: #ffffff;\n    border-color: #d2d2d2;\n    color: #5e5e5e;\n    text-decoration: none;\n  }\n  .chip:hover {\n    background-color: #f2f2f2;\n  }\n  .chip:focus {\n    background-color: #f2f2f2;\n  }\n  .chip:active {\n    background-color: #d8d8d8;\n    border-color: #b6b6b6;\n  }\n  .logo-dark {\n    display: none;\n  }\n  .gradient {\n    background: linear-gradient(90deg, #fafafa 15%, #fafafa00 100%);\n  }\n}\n@media (prefers-color-scheme: dark) {\n  .container {\n    background-color: #1f1f1f;\n    box-shadow: 0 0 0 1px #ffffff26;\n  }\n  .headline-label {\n    color: #fff;\n  }\n  .chip {\n    background-color: #2c2c2c;\n    border-color: #3c4043;\n    color: #fff;\n    text-decoration: none;\n  }\n  .chip:hover {\n    background-color: #353536;\n  }\n  .chip:focus {\n    background-color: #353536;\n  }\n  .chip:active {\n    background-color: #464849;\n    border-color: #53575b;\n  }\n  .logo-light {\n    display: none;\n  }\n  .gradient {\n    background: linear-gradient(90deg, #1f1f1f 15%, #1f1f1f00 100%);\n  }\n}\n\u003c/style\u003e\n\u003cdiv class=\"container\"\u003e\n  \u003cdiv class=\"headline\"\u003e\n    \u003csvg class=\"logo-light\" width=\"18\" height=\"18\" viewBox=\"9 9 35 35\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M42.8622 27.0064C42.8622 25.7839 42.7525 24.6084 42.5487 23.4799H26.3109V30.1568H35.5897C35.1821 32.3041 33.9596 34.1222 32.1258 35.3448V39.6864H37.7213C40.9814 36.677 42.8622 32.2571 42.8622 27.0064V27.0064Z\" fill=\"#4285F4\"/\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M26.3109 43.8555C30.9659 43.8555 34.8687 42.3195 37.7213 39.6863L32.1258 35.3447C30.5898 36.3792 28.6306 37.0061 26.3109 37.0061C21.8282 37.0061 18.0195 33.9811 16.6559 29.906H10.9194V34.3573C13.7563 39.9841 19.5712 43.8555 26.3109 43.8555V43.8555Z\" fill=\"#34A853\"/\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M16.6559 29.8904C16.3111 28.8559 16.1074 27.7588 16.1074 26.6146C16.1074 25.4704 16.3111 24.3733 16.6559 23.3388V18.8875H10.9194C9.74388 21.2072 9.06992 23.8247 9.06992 26.6146C9.06992 29.4045 9.74388 32.022 10.9194 34.3417L15.3864 30.8621L16.6559 29.8904V29.8904Z\" fill=\"#FBBC05\"/\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M26.3109 16.2386C28.85 16.2386 31.107 17.1164 32.9095 18.8091L37.8466 13.8719C34.853 11.082 30.9659 9.3736 26.3109 9.3736C19.5712 9.3736 13.7563 13.245 10.9194 18.8875L16.6559 23.3388C18.0195 19.2636 21.8282 16.2386 26.3109 16.2386V16.2386Z\" fill=\"#EA4335\"/\u003e\n    \u003c/svg\u003e\n    \u003csvg class=\"logo-dark\" width=\"18\" height=\"18\" viewBox=\"0 0 48 48\" xmlns=\"http://www.w3.org/2000/svg\"\u003e\n      \u003ccircle cx=\"24\" cy=\"23\" fill=\"#FFF\" r=\"22\"/\u003e\n      \u003cpath d=\"M33.76 34.26c2.75-2.56 4.49-6.37 4.49-11.26 0-.89-.08-1.84-.29-3H24.01v5.99h8.03c-.4 2.02-1.5 3.56-3.07 4.56v.75l3.91 2.97h.88z\" fill=\"#4285F4\"/\u003e\n      \u003cpath d=\"M15.58 25.77A8.845 8.845 0 0 0 24 31.86c1.92 0 3.62-.46 4.97-1.31l4.79 3.71C31.14 36.7 27.65 38 24 38c-5.93 0-11.01-3.4-13.45-8.36l.17-1.01 4.06-2.85h.8z\" fill=\"#34A853\"/\u003e\n      \u003cpath d=\"M15.59 20.21a8.864 8.864 0 0 0 0 5.58l-5.03 3.86c-.98-2-1.53-4.25-1.53-6.64 0-2.39.55-4.64 1.53-6.64l1-.22 3.81 2.98.22 1.08z\" fill=\"#FBBC05\"/\u003e\n      \u003cpath d=\"M24 14.14c2.11 0 4.02.75 5.52 1.98l4.36-4.36C31.22 9.43 27.81 8 24 8c-5.93 0-11.01 3.4-13.45 8.36l5.03 3.85A8.86 8.86 0 0 1 24 14.14z\" fill=\"#EA4335\"/\u003e\n    \u003c/svg\u003e\n    \u003cdiv class=\"gradient-container\"\u003e\u003cdiv class=\"gradient\"\u003e\u003c/div\u003e\u003c/div\u003e\n  \u003c/div\u003e\n  \u003cdiv class=\"carousel\"\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHY--GlEDJvKMDF46CRJKL7gkdoVKc2ve10FexqSY-6aldIQOgA4ipYPm693lN5mZBaLfFeY_2osl41ikng1nz3sB1LP0ZWsfB7Ts923-WQEa7Y1BKD_23YMoo6u25fvaWoVFU0KkXQMCykx2kMQwL7H6rPvw6Jg2rycIXysbBwNf1SBGs8GnU7tjuIBAaYp8HNmpSXGxvsUNRI0v3l2ALdrr2h8Uwkerm4uAR1\"\u003edisadvantages of ruby programming language\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEXnZksjgSXWAjMmMjluvVJ1a2GX0iSFKr1tYMKBB_W_BslpKmV0S2QEooIxWzNhqlmc8Vd7UDGLXSSol0YbD3imyM2C-kVISndvOZe5nuD_-DfM8aq7b8fPt942u6QejSjqeB5E7CTLV-3aTLlCQIyH_tFK1RQcJyPuhKOC54z1pfO-U21W7FGI6LOnxQQOb_syYlECPvxA4bJj9R7tZ2rQczihFNJT2mF\"\u003eadvantages of ruby programming language\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQErTPb4h5U7VcSsxHX73xBuR6qlNk3TJXkA4nMksS8ZfnJSqx-8QCAe3miaIwqI5vtUOgwv-Mn6IrV03tZilSKQEQnsxbgOWe_yGpqDXdnhb-oQwO1IuVg9Hn_NW3GtbEqq5kwUBLzSoxnVxAjGsR3r7zG6dKyfBVhfbwgUTVLuAD4gHBWCjA5vcXrBQ07IHazpZM4YsG8ofdPIt22_epu_K1MD\"\u003ewhat is ruby programming language\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHtMAwBIPicMTWPSophjMQ6FLUin9wur91Cr3RV_CNh-vrtEudh8ZUAK61CacbVDUh5XiWqRzu2x2Es7Xc5maWhFpC9_1KL1V1psgsl21mkQdw2cRiZN7CcHxCH9a5hKrV8o5JpSeUTtNA6JG7cIgW7eZ96CjmPnQ2Zl3pasmmiWvUqG50KTMwpzhgO-Jbwy1lfR-CnQJAIfDGWqILbcB1Xhh_LtKNk_WXN75M=\"\u003ekey features of ruby programming language\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHbqZCNahJDeVAi9P9CGWBVN_YnmkaWu4kjKecxvX0PwzvU60ULC4y3XmSLxH0ZfxOU562AMKdTSQIMpMA3i3ZZBG7j7cmCFhIZ88GalSTz6b3bcFCTvWqwizXAg2y4QUyxv1vdQ7D5qbPSEmHCW_-7mzVnAcV36ehd3Wu51rdS9-ZmvB2xQtRiMSgSj81ZpVqUb-Xmq3SUFrrhEFGdGQRDfJjw9RZR\"\u003eruby programming language popularity\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFGAoLJ8-P00FKhsdhLoppbMQURXVLsB78IxHj0lpFbb7cVtufTaylduvyGZ1C36_n18ixPWImKhtxY7ORKelynxqwE3SBb8UgeCqU5lOk04DwjIy3NlMILFm1-tAj-SZ2A7PgfLLJqNd3Hw8Wf8KAbj2HF-H9ItXdW9AM1ENPgJq_ebIu8JCUbrUHmyJ0U87OBSCWAHoNYpKEVN_G5_sdtW99S-OOvYBH39A3mEw==\"\u003eruby on rails and ruby programming language\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE15TjqGhTsv7qsT9Xje2dhISr3yMaiQ9OQfL5-1LZQaJ3MACynXzOeZDmcK6e_-_TfOcCz-2i_Q03zUGWXS67Sl0eWtl4TtjFJZlUEHzi0Q1LAdEDy7_plEgZjbElGggZVbtYVt4b4mfpc0lfGID85UWSpzPdF62ZbNIm6VLyOe01XYiPbMjUUCeO6txhJHGjEVCq_mUkJ2kC-9vVdxeJp2pc7V04=\"\u003eruby programming language use cases\u003c/a\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n"
+                },
+                "groundingChunks": [
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEMRqNkUWhhRZqhiZf2lLMgtYw8adyQ2PmGbq4uqC5muqU2ww5zHqvYwU6XM8WCq-ch59mpBQJtRJI32mNo0T_5niFw9pMcr6VQ5U1b8tzlmtSE_wW_lqWT",
+                      "title": "ruby-lang.org"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFM6nQzTVW-Xoub_nmVC8bEDgVm026vPpLlyim5haY_IJmwBtFwVsu1tPL4PZa04Ro14fVupsvQ0hMfm_1evSHs8mADXtFVS5U5YgfAcQOKtnxofgVShC3WzoHvfZpcRnG0U9hFrhHbJzLVo_rykCZlyT_mpO_oZ8f75owQVz34DOeIaHuHjaJsLTY=",
+                      "title": "hackerrank.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEyzbvyTwf4xYgFYwEXm4BrsuItbjhYNxF3lZ4rBmE1e8M9XyS-og14m4jFD167i4NzHqqonuEYapCWi_G-eMFC5vuEG1j68bWqPED_g0_PUcTA9FBB0ljoW_tyGNu0CtH7XmHrFIpfm3hhnkan-bFLO7JZd-Y3UkaJPQJiO5t2AA==",
+                      "title": "nextlinklabs.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFV6ZftHz0X4t7mfxz8Q7ay6E26ND9yswNizC3oyUehIZjQL05BcwiA9j1xdylEHQGTi5aK7SwJ2sxt6nV4bkOntleCkc75ZGUJGK4j2q7o8Adxvb0EI_eDkKEPPMdlR8CxhqWKUu1bN3qHqcgM9fL35YkMUw==",
+                      "title": "wikipedia.org"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH6Uaz4m0As64jDINz_qY3wAUyf9lw2vseZxsqAiQ9qTO5WZtkFY_dovznG5G8f0ZKEFQ3fmzAIOTqO-mpI7SXQO7zkgaQFl_Rx0TMUaAdiHWrOV0gLo_w6zL_rka_mxjJ-5OO-2NHPfnO-i1F2utwkYQiMyHwgLRk=",
+                      "title": "oracle.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGz3yybI4k3mRXs81gI19T95o7WFmVkrOHOiDv7ovGkjoZ9mzBGv-nlNEdboVl24SpnqFIz3iWfX0M8ukyUO3stuDomsZzbIpBLF80DjHbeyOby7_oVNrV3U4n4uxhiCgi-suaG1nR0Wxs8AvUBP2-qH07IwUExc8g7ZOB6uehDL4ibeQ146zm6TSap",
+                      "title": "railsdrop.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEYSSNnHER3F7ajX5s4JXjeZCI_Gn_2-r8dj1aOCIVh13AbioKxsQdHXSDkkVjZulpjsWCZYptmj-BPzWLRbaDC4UgxIXT8MSPqb7C9555_wAd7yii1kfckG1rGpNp3",
+                      "title": "ruby-lang.org"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGSGceHP8WBRz8aCn4gpE62bpsRKm1VmkuxmHFXsq4ce3_e64mFhYcCQ-5phcZqp339lqdtioOWl6hQBQaUVrzufnir6n6P324y3MOlzoQF-UE1t3ghh7ytlK6-wqgSc2T9uic5hPmtWZq1",
+                      "title": "pangea.ai"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHlsp5oSVhUtfPG7vi7gAhQLkTWsytZ5jJHEW28f2jRqIPOCvE0uoboUpgjSCnwf-U-_561gmvYB30r8J1xg38V41AWTlbeIIa5Ej4mWaysSRbevkQMpPRDE3oz3eV4j6w6nF3hfc8RqecWED-9ZIivufDrU3D3gG1O9SjscKEiaw==",
+                      "title": "codepwr.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE_TLifsTBI7VkWsc8htFtLb_Eh2lWtnoIpn1zWF_0qR0iQ40ePC8XXZM4e82xFo4vdrq-2Up4SV5yy7NnrTQh5lBk0LdP72fVFufP3VPu4E3Q6hLc-ujFM8JAuRtYWvOIBuQRucE1JwHwkoAfjiGo4UWCdVGNdjKzxKOvkENZATKA-dXtPP5rr_TYW3RyKTKnpDhDehPZvhYu6",
+                      "title": "reinteractive.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF0EqcFCEYnvN5Pvi-nVxrLUhBXte5CRts80MqoPrgwfcnSL7icddOW_AyX1qo3J2O-T2NLtd8uzdAMJBxdeHGxQ1Rxzu2iQ1-WfGJCE4gh61_hxRDuwSJdD_rloK4Ji6XRWwHQaPhbSjy8wQ==",
+                      "title": "dev.to"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFtUoIgQmr0qk_1m5evwBN7Lko2j6cdhtKe8SmjRq30rgK143KRDV_Fyfku9hHtNUa4gJcoObT-c4UGQFl_vYO1AQJSfRo8VCkamLl_LsJWWn3LUdGH76rs4skFU9xPtSRv22yZomTS43OBCoB7hjs97JG5hPDhjxd0GyfbeaxKqEDWcA==",
+                      "title": "thecodest.co"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFDzUd_6d4bIMbS4Yl-w6qtUwPA0S62eilY4YNqsriDWy1qrzjAS0QpsisQpoG2M8S9qjjKz8ij8ia6RaTgjeouzhzzNV9miUnomfxJz3987F9UiDxrzVc59AF8Y6jvwQl0ACgpN8mOqtpNsCJeyrKdbxi3ZVd2NpU=",
+                      "title": "geeksforgeeks.org"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGVFArQE-rvlDjPS7FWt9sU4UQyybll0qYeR8ZKMe6De8gYCuT21Or6uWbSJMf3b8AGnCDAmI_MOlg6LZgnGSmly1wXWHAQllvh3layp8_jNFW10gX--hXJ2gsSMlNc4JofqKnu-G-4hvZBMdIBbQqv0Q==",
+                      "title": "netguru.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEikdKzFcY4wD7h5yzb6GzGwtjuSVYpCMnav7e-3IRpodddwZ_LkB8Nz-PtDkz3OwfFf6wsiuwcUQd7dLtmGJn6RRXpOiXq651ijKqN-Ri225GTCkKTfzPjKUtdTFzUBm45ey_sdE5qQutdaKk2mkwMk8Uff5i2znzFXU_Hdzc66D1jtte4qvfrgbEffAXbAiBJP-tDb3zga_bA6ACb",
+                      "title": "programmers.io"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEZv64boxUcSxAchr3dNB6Tvoul6uimIrHvdZ8RFOAkMW4UtiuxyQ6bVKC_TO96ZFRtJ1ISz0SVxU6liWnBMHWUwB0l6dzvaTnqMdVDQU2wyPnQxM20yGorJdJAdPA0BIqEosBiviAZIzPT7n2UfAIsOufOZULcQafUKaugzGl5jahNhZO-qqyIynQHe71cdV5wgfsomQ==",
+                      "title": "lemon.io"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEe5KwK6fnw60NxrQTMlsT5XPidPqjJLWbID3L4j2ft0KQMOUnggey0sufqL2RifRbz1WKgPoc_6Qp2XtkuGFJQj0kZfN6Ahl0kI4hx0Ez9DFr8LzOej6YHgdrinj5CWJVXQQeLmb8UrQHW3ruKaDPMR1XnIqEI2GkLzz9B7bS19fIMskYScnjL",
+                      "title": "reddit.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFTwkJ2NPiiKY4kuV3P4XC2p_iQewR4gUdFCT1eFzx0TXiXLzUlAorxQWT7E-6YvBYHjerH48PWUK3pOPqjcQAmwsihwRJq5JyXi-9_-nYoapqgWJ4Y8uvZ2mwbJk4y7LqzU7YoRx5tSLD7zazvovgTI_J6G4uqwkDAvIugkS3QkI5Rs9PlyKeKUpCx",
+                      "title": "reddit.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF9Igd_nFroRMFPUxOUi5angSa84QLvg4mf8_y8uGYoRPG9rouQZz6yVyGdnz8I4vOPqLEtwoQ5IqNdn3SWRxZtpplB1s83nGh05FfOIQ3IAnfveTj5SgKLlX_Iu2I=",
+                      "title": "tiobe.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGhCR5YxStYiKcWOr5_eFLLORNg3P8WFz5oT0kyuEqOoWaIK635Xj9P_-FPbYYiB2YTEalHI0BcdIkssrHRkZ4iNSkVoR_OchEh5RGTBeD5kE5gig89wd6SPCdY5hq1mbFWEZiH-YKeQsk1vPoCvFDia4Z4AmPgNDxkf7E3gJXoIjGANIDsk1vp_ZUO-7qkQN93L93CVmHQ8HUO",
+                      "title": "reddit.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEwCOfdaD0jmuKlq21BKQAtS9M8kxLFc-MKHLUPrPJODT71ETzpMrxspSMn5FJ8Tiw2YiwFlnwp2fwhKKmiznCC--RjzdlaA6Ka2G5pcbXBHxmEQfRRovdd2xOudkKJgtRbq7_0XfY=",
+                      "title": "wikipedia.org"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHMdNwrye7MVhtrzUYJJD8Ie3YeMaVKdEiBlTuyGyl98osw9pmKhwUyMPZnQhwzFBaunFzMl3kMpv0g-EEW-ATSLyvgNwh8n1oR91c-lN-WkVdfL3q5ib-Flf4d1sbyR-WgikmvhIiQlWrUB0_JVUGe",
+                      "title": "sololearn.com"
+                    }
+                  }
+                ],
+                "groundingSupports": [
+                  {
+                    "segment": {
+                      "endIndex": 187,
+                      "text": "Ruby is a dynamic, open-source, object-oriented programming language designed in the mid-1990s by Yukihiro \"Matz\" Matsumoto in Japan with a focus on programmer happiness and productivity."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      2,
+                      3
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 188,
+                      "endIndex": 339,
+                      "text": "It is a general-purpose, interpreted language that emphasizes simplicity and an intuitive syntax, making it feel almost like coding in natural English."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      3,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 367,
+                      "endIndex": 544,
+                      "text": "Ruby boasts several distinguishing features that contribute to its appeal:\n*   **Pure Object-Oriented Design** Every value in Ruby, including primitive data types, is an object."
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      3,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 619,
+                      "endIndex": 810,
+                      "text": "*   **Elegant and Readable Syntax** Ruby's syntax is designed for high readability, minimizing complex symbols and verbose constructs, which makes it beginner-friendly and easier to maintain."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 811,
+                      "endIndex": 989,
+                      "text": "*   **Dynamic Typing** Variables in Ruby are dynamically typed, meaning a variable can hold different types of objects throughout its lifecycle, offering significant flexibility."
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1086,
+                      "endIndex": 1186,
+                      "text": "If an object \"quacks like a duck\" (i.e., responds to the same methods), Ruby treats it as that type."
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1187,
+                      "endIndex": 1373,
+                      "text": "*   **Metaprogramming** Ruby allows developers to write code that generates or modifies other code at runtime, enabling highly expressive and concise solutions while reducing repetition."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1374,
+                      "endIndex": 1549,
+                      "text": "*   **Flexibility** Developers can freely alter parts of Ruby, even redefining or removing essential components, giving them considerable control over the language's behavior."
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      6
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1550,
+                      "endIndex": 1722,
+                      "text": "*   **Blocks and Iterators** Ruby offers powerful functionality through \"blocks,\" which are unnamed chunks of code that can be passed to methods, creating robust iterators."
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1723,
+                      "endIndex": 1908,
+                      "text": "*   **Rich Ecosystem (Gems)** The language has a vast collection of libraries, known as \"gems,\" that support a wide range of development needs, from web applications to data processing."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1909,
+                      "endIndex": 2058,
+                      "text": "*   **Portability** Ruby is highly portable and can run on various operating systems, including GNU/Linux, UNIX, macOS, Windows, DOS, BeOS, and OS/2."
+                    },
+                    "groundingChunkIndices": [
+                      8,
+                      6,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2059,
+                      "endIndex": 2247,
+                      "text": "*   **Concurrency Features** It supports native thread creation and management, allowing for multi-threading to execute several tasks simultaneously and improve application responsiveness."
+                    },
+                    "groundingChunkIndices": [
+                      8,
+                      6
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2248,
+                      "endIndex": 2385,
+                      "text": "*   **Automatic Garbage Collection** Ruby includes a true mark-and-sweep garbage collector, simplifying memory management for developers."
+                    },
+                    "groundingChunkIndices": [
+                      6
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2417,
+                      "endIndex": 2630,
+                      "text": "Programmers often choose Ruby for several reasons:\n*   **Developer Productivity and Happiness** Ruby's design prioritizes making programmers happy, leading to an enjoyable coding experience and faster development."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      2,
+                      9,
+                      10
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2631,
+                      "endIndex": 2867,
+                      "text": "*   **Rapid Application Development (RAD)** Its simplicity, expressiveness, and rich ecosystem (especially with Ruby on Rails) enable quick creation and iteration of applications, making it ideal for startups and testing business ideas."
+                    },
+                    "groundingChunkIndices": [
+                      2,
+                      7,
+                      11,
+                      12,
+                      10
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2868,
+                      "endIndex": 3016,
+                      "text": "*   **Readability and Maintainability** The natural language-like syntax results in code that is easier to read, understand, and maintain over time."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      2,
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3017,
+                      "endIndex": 3204,
+                      "text": "*   **Strong and Supportive Community** Ruby benefits from a vibrant, welcoming, and active community that contributes to its extensive library ecosystem and offers support to developers."
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      13,
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3205,
+                      "endIndex": 3343,
+                      "text": "*   **Cost-Effectiveness** The speed of development often translates into reduced development time and, consequently, lower project costs."
+                    },
+                    "groundingChunkIndices": [
+                      7,
+                      10
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3344,
+                      "endIndex": 3427,
+                      "text": "*   **Security** Ruby places a strong emphasis on securing solutions built with it."
+                    },
+                    "groundingChunkIndices": [
+                      14
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3463,
+                      "endIndex": 3749,
+                      "text": "Despite its strengths, Ruby also has some limitations:\n*   **Performance** Ruby applications can sometimes be slower in runtime performance compared to languages like Java or C++, which can be a drawback for highly performance-critical applications or those with a very large user base."
+                    },
+                    "groundingChunkIndices": [
+                      7,
+                      15,
+                      11,
+                      16
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3750,
+                      "endIndex": 3978,
+                      "text": "*   **Scalability Concerns** While capable of scaling, some larger applications may experience performance bottlenecks, particularly when dealing with extensive database connections, depending on efficient code and architecture."
+                    },
+                    "groundingChunkIndices": [
+                      15,
+                      11,
+                      16
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3979,
+                      "endIndex": 4053,
+                      "text": "*   **Memory Usage** Ruby can sometimes exhibit higher memory consumption."
+                    },
+                    "groundingChunkIndices": [
+                      3
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4054,
+                      "endIndex": 4239,
+                      "text": "*   **Documentation Gaps** While popular libraries (gems) are well-documented, some lesser-known gems might have incomplete or outdated documentation, potentially hindering development."
+                    },
+                    "groundingChunkIndices": [
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4240,
+                      "endIndex": 4497,
+                      "text": "*   **Perceived Decline in Popularity** After a peak in popularity in the web domain between 2007 and 2013, Ruby's overall standing in various programming language indices has seen a decline, with the TIOBE Index reporting it fell out of the top 20 in 2025."
+                    },
+                    "groundingChunkIndices": [
+                      17,
+                      10,
+                      18
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4498,
+                      "endIndex": 4617,
+                      "text": "This can sometimes lead to a smaller pool of new Ruby developers compared to other languages like Python or JavaScript."
+                    },
+                    "groundingChunkIndices": [
+                      17,
+                      19
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4638,
+                      "endIndex": 4790,
+                      "text": "Ruby on Rails (often shortened to Rails) is a server-side web application framework written in Ruby that has been pivotal in defining Ruby's reputation."
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      13,
+                      20
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4791,
+                      "endIndex": 5054,
+                      "text": "It follows the Model-View-Controller (MVC) architectural pattern and champions principles like \"Convention over Configuration\" (CoC) and \"Don't Repeat Yourself\" (DRY), which streamline web development by minimizing repetitive code and providing sensible defaults."
+                    },
+                    "groundingChunkIndices": [
+                      11,
+                      20
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5055,
+                      "endIndex": 5221,
+                      "text": "Rails revolutionized web development in 2005 with features like seamless database table creation, migrations, and scaffolding, enabling rapid application development."
+                    },
+                    "groundingChunkIndices": [
+                      20
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5385,
+                      "endIndex": 5515,
+                      "text": "Major companies like GitHub, Shopify, Airbnb, Dribbble, Bloomberg, and CrunchBase have utilized Ruby on Rails for their platforms."
+                    },
+                    "groundingChunkIndices": [
+                      13,
+                      12
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5516,
+                      "endIndex": 5603,
+                      "text": "Beyond web applications, Ruby is also widely used for:\n*   **Automation and Scripting**"
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      12
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5604,
+                      "endIndex": 5630,
+                      "text": "*   **Command-line Tools**"
+                    },
+                    "groundingChunkIndices": [
+                      21,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5631,
+                      "endIndex": 5667,
+                      "text": "*   **Data Processing and Analysis**"
+                    },
+                    "groundingChunkIndices": [
+                      1,
+                      21,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5668,
+                      "endIndex": 5688,
+                      "text": "*   **Web Scraping**"
+                    },
+                    "groundingChunkIndices": [
+                      21,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5689,
+                      "endIndex": 5703,
+                      "text": "*   **DevOps**"
+                    },
+                    "groundingChunkIndices": [
+                      12,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5704,
+                      "endIndex": 5732,
+                      "text": "*   **Desktop Applications**"
+                    },
+                    "groundingChunkIndices": [
+                      21
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5733,
+                      "endIndex": 5776,
+                      "text": "*   **Game Development** (e.g., DragonRuby)"
+                    },
+                    "groundingChunkIndices": [
+                      17
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5778,
+                      "endIndex": 5979,
+                      "text": "Although its \"hype cycle\" may have passed, Ruby and Rails continue to be solid choices for developers, particularly for startups and projects that prioritize developer productivity and rapid iteration."
+                    },
+                    "groundingChunkIndices": [
+                      17,
+                      16
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 5980,
+                      "endIndex": 6180,
+                      "text": "Recent versions of Ruby (like Ruby 3.3 and 3.4) have also introduced significant performance enhancements, including new JIT compilers (RJIT and YJIT) and improvements in memory usage and concurrency."
+                    },
+                    "groundingChunkIndices": [
+                      3
+                    ]
+                  }
+                ],
+                "webSearchQueries": [
+                  "what is ruby programming language",
+                  "key features of ruby programming language",
+                  "advantages of ruby programming language",
+                  "disadvantages of ruby programming language",
+                  "ruby on rails and ruby programming language",
+                  "ruby programming language popularity",
+                  "ruby programming language use cases"
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 28,
+            "candidatesTokenCount": 1311,
+            "totalTokenCount": 3560,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 28
+              }
+            ],
+            "toolUsePromptTokenCount": 309,
+            "toolUsePromptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 309
+              }
+            ],
+            "thoughtsTokenCount": 1912
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "zY-DafPGOPfpz7IP4ZalkAw"
+        }
+  recorded_at: Wed, 04 Feb 2026 18:28:29 GMT
+recorded_with: VCR 6.4.0

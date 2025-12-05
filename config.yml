@@ -1,0 +1,26 @@
+# Example configurations (uncomment and modify as needed):
+
+# Anthropic/Claude
+# provider: anthropic
+# model: claude-sonnet-4-5
+# api_key: sk-ant-...  # or set ANTHROPIC_API_KEY env var
+
+# OpenAI
+# provider: openai
+# model: o4-mini
+# api_key: sk-...  # or set OPENAI_API_KEY env var
+
+# Google Gemini
+#provider: gemini
+#model: gemini-2.5-flash
+# api_key: ... # or set GEMINI_API_KEY env var
+
+# Ollama
+provider: ollama
+model: gemini-3-flash-preview:cloud
+api_base: http://localhost:11434/v1
+
+# LMStudio or other OpenAI-compatible
+# provider: openai
+# model: gpt-oss-20b
+# api_base: http://localhost:1234/v1

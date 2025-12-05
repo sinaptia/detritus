@@ -1,0 +1,160 @@
+# frozen_string_literal: true
+
+require_relative "test_helper"
+
+class ReplTest < DetritusTest
+  def setup
+    super
+    # Set fake GEMINI_API_KEY if not present (for testing without real key)
+    ENV["GEMINI_API_KEY"] ||= "fake-gemini-key-for-testing"
+
+    # Configure RubyLLM BEFORE creating chat
+    RubyLLM.configure do |c|
+      c.gemini_api_key = ENV["GEMINI_API_KEY"]
+    end
+
+    # Configure state for REPL
+    $state.provider = "gemini"
+    $state.model = "gemini-2.5-flash"
+    $state.instructions = "You are a helpful assistant."
+    $state.current_chat_id = "test_repl_#{Time.now.to_i}"
+    $state.history_file = File.join(@test_dir, ".detritus", "history")
+    $state.chat = create_chat(persist: false)
+  end
+
+  def test_new_and_clear_create_new_chat
+    old_chat = $state.chat
+
+    output = capture_io { handle_prompt("/new") }.first
+    assert_includes output, "[✓ context cleared]"
+
+    new_chat = $state.chat
+    refute_same old_chat, new_chat
+    assert new_chat.is_a?(RubyLLM::Chat)
+
+    # Test /clear does the same
+    old_chat = $state.chat
+    output = capture_io { handle_prompt("/clear") }.first
+    assert_includes output, "[✓ context cleared]"
+    refute_same old_chat, $state.chat
+  end
+
+  def test_load_name_args_builds_and_adds_prompt_to_chat
+    create_prompt("test_prompt", "Description line\nYou should help with {{ARGS}}")
+
+    output = capture_io { handle_prompt("/load test_prompt some arguments") }.first
+    assert_includes output, "[✓ test_prompt loaded]"
+
+    # Verify message was added to chat
+    messages = $state.chat.messages
+    user_messages = messages.select { |m| m.role == :user }
+    assert user_messages.any? { |m|
+      content = m.content.respond_to?(:text) ? m.content.text : m.content
+      content.include?("some arguments")
+    }
+  end
+
+  def test_slash_name_args_builds_prompt_and_asks_chat
+    create_prompt("greet", "Greeting prompt\nSay hello to {{ARGS}}")
+
+    with_vcr("repl_slash_command") do
+      output = capture_io { handle_prompt("/greet world") }.first
+
+      # The response should contain something - we're asking the chat
+      # The chat was asked with the prompt content
+      assert $state.chat.messages.size > 1
+    end
+  end
+
+  def test_resume_id_loads_chat_successfully
+    # Create a chat file first
+    chat_id = "saved_chat_123"
+    chat_data = {
+      id: chat_id,
+      model: $state.model,
+      provider: $state.provider,
+      messages: [
+        RubyLLM::Message.new(role: :user, content: "Previous message"),
+        RubyLLM::Message.new(role: :assistant, content: "Previous response")
+      ]
+    }
+    File.write(File.join(".detritus/chats", "#{chat_id}"), Marshal.dump(chat_data))
+
+    output = capture_io { handle_prompt("/resume #{chat_id}") }.first
+    assert_includes output, "[✓ Chat loaded (2 messages)]"
+    assert_equal chat_id, $state.current_chat_id
+  end
+
+  def test_resume_without_id_lists_chats_directory
+    # Create some chat files
+    File.write(File.join(".detritus/chats", "chat_001"), "[]")
+    File.write(File.join(".detritus/chats", "chat_002"), "[]")
+
+    output = capture_io { handle_prompt("/resume") }.first
+    assert_includes output, "chat_001"
+    assert_includes output, "chat_002"
+  end
+
+  def test_regular_message_asks_chat_with_streaming
+    with_vcr("repl_regular_message") do
+      output = capture_io { handle_prompt("What is 1+1? Just say the number.") }.first
+
+      # Should have received some response
+      assert output.length > 0
+    end
+  end
+
+  def test_history_gets_appended_immediately
+    # Clear history file
+    File.write($state.history_file, "")
+
+    with_vcr("repl_history_first") do
+      handle_prompt("first message")
+    end
+
+    history_content = File.read($state.history_file)
+    assert_includes history_content, "first message"
+
+    with_vcr("repl_history_second") do
+      handle_prompt("second message")
+    end
+
+    history_content = File.read($state.history_file)
+    assert_includes history_content, "first message"
+    assert_includes history_content, "second message"
+  end
+
+  def test_model_command_switches_model_and_provider_while_preserving_messages
+    # Clear any messages from setup if any
+    $state.chat.reset_messages!
+
+    # Add a user message
+    $state.chat.add_message(role: :user, content: "Hello from Gemini")
+    assert_equal "gemini", $state.provider
+    assert_equal "gemini-2.5-flash", $state.model
+
+    output = capture_io { handle_prompt("/model ollama/llama2") }.first
+
+    assert_includes output, "[✓ Switched to ollama/llama2]"
+    assert_equal "ollama", $state.provider
+    assert_equal "llama2", $state.model
+
+    # Verify model was updated in the chat object
+    assert_equal "llama2", $state.chat.model.id
+
+    # Verify message was preserved (exactly 1 now since we reset and added 1)
+    assert_equal 1, $state.chat.messages.size
+    assert_equal "Hello from Gemini", $state.chat.messages.first.content
+  end
+
+  private
+
+  def capture_io
+    old_stdout = $stdout
+    $stdout = StringIO.new
+    yield
+    [$stdout.string]
+  ensure
+    $stdout = old_stdout
+  end
+end

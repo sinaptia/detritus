@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if ! docker image inspect detritus-agent:latest &> /dev/null; then
+  echo "Docker image not found. Building detritus-agent:latest..."
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  docker build -t detritus-agent:latest "$SCRIPT_DIR/.."
+fi
+
+# Check if we have a TTY
+if [ -t 0 ] && [ -t 1 ]; then
+  INTERACTIVE="-it"
+else
+  INTERACTIVE="-i"
+fi
+
+docker run $INTERACTIVE --rm \
+  --network host \
+  -v "$(pwd):/workdir" \
+  -v "$HOME/.detritus:/root/.detritus" \
+  -v detritus-gems:/usr/local/bundle \
+  -e GEMINI_API_KEY="${GEMINI_API_KEY}" \
+  -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}" \
+  -e OPENAI_API_KEY="${OPENAI_API_KEY}" \
+  detritus-agent:latest "$@"

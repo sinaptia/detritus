@@ -1,0 +1,72 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"What
+        is 1+1? Just say the number."}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"The
+        path to the file you want to edit."},"old":{"type":"STRING","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"web_search","description":"useful
+        for searching the web","parameters":{"type":"OBJECT","properties":{"query":{"type":"STRING","description":"The
+        search query"}},"required":["query"]}},{"name":"sub_agent","description":"Delegate
+        focused tasks to a specialized sub-agent with optional prompt/skill","parameters":{"type":"OBJECT","properties":{"task":{"type":"STRING","description":"The
+        complete task description including all necessary context, data, and code
+        snippets the sub-agent needs"},"use_prompt":{"type":"STRING","description":"Optional:
+        name of a prompt/skill from the prompts library (e.g., ''plan'', ''code_review'')"}},"required":["task"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/event-stream
+      Content-Disposition:
+      - attachment
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 04 Feb 2026 18:28:35 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=1304
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        345,\"candidatesTokenCount\": 1,\"totalTokenCount\": 346,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 345}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"04-DafOSOeTtz7IPhL2jmQk\"}\r\n\r\n"
+  recorded_at: Wed, 04 Feb 2026 18:28:35 GMT
+recorded_with: VCR 6.4.0

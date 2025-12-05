@@ -1,0 +1,7 @@
+#!/bin/bash
+if [ "$1" = "--help" ]; then
+  echo "Fetch and read web page contents in markdown format"
+  exit 0
+fi
+
+curl -s "https://r.jina.ai/$1"

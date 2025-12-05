@@ -1,0 +1,74 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"first
+        message"}]},{"role":"model","parts":[{"thought":true,"thoughtSignature":"CiQBvj72+wA6XZxiJehaJas3G+q1u+IZGUroLIMaSGiIUk7AWAcKdAG+Pvb7txCLiWNS3aD5SEFsIYFU3OaXQSIRcn0ddTCnaxCshnsjhl/reTK95VXs/SMe0Zk/4GwT31/KyQqKEM5+X6DrDmvMDBA5F8SLpeQgqOdjA3O7GrZgleI+99WmReIAOIcGWw1/pM6MwIcqYQZY9Xka"},{"text":"Hello!
+        How can I assist you today?"}]},{"role":"user","parts":[{"text":"second message"}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"The
+        path to the file you want to edit."},"old":{"type":"STRING","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"web_search","description":"useful
+        for searching the web","parameters":{"type":"OBJECT","properties":{"query":{"type":"STRING","description":"The
+        search query"}},"required":["query"]}},{"name":"sub_agent","description":"Delegate
+        focused tasks to a specialized sub-agent with optional prompt/skill","parameters":{"type":"OBJECT","properties":{"task":{"type":"STRING","description":"The
+        complete task description including all necessary context, data, and code
+        snippets the sub-agent needs"},"use_prompt":{"type":"STRING","description":"Optional:
+        name of a prompt/skill from the prompts library (e.g., ''plan'', ''code_review'')"}},"required":["task"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/event-stream
+      Content-Disposition:
+      - attachment
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 04 Feb 2026 18:28:34 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=930
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello
+        again! What can I do for you now?\",\"thoughtSignature\": \"Cm0Bvj72+2KCXfdyj07hADDFX+rY/cV5Z2ZufAkxHDslviWwLX6YvzwKtwo/iW2BDER+AS65QPoGRyKeHhoUJDkUB9ePDXTaA/KbelX7VNWOP4DG6WsZP7GuPUb/vapY7H8fcoVpFHGMFc4tO9tzCokBAb4+9vvG9gZS48a1MYmWA1OOn119uuj8v7Nt5jhY5ikFP5w/jb/fpNf3n5MwF4ZhdXw2eyKq7uSe1gT0X/1m0LUCH8YeXFrSqtEgu3mQb6s0IBumdcmvufX7SMFxI+GI3nDycIBxllZGzQhgJfsuoyTrTiDGlM0s3m9LN06Ws+0yBp6AzV/FwAM=\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        348,\"candidatesTokenCount\": 11,\"totalTokenCount\": 396,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 348}],\"thoughtsTokenCount\": 37},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"0o-Dacf7D6yDz7IPkqXtMQ\"}\r\n\r\n"
+  recorded_at: Wed, 04 Feb 2026 18:28:34 GMT
+recorded_with: VCR 6.4.0

@@ -1,0 +1,487 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"Use your web search capabilities
+        to compile a comprehensive answer to the following query. Use as many searches
+        as possible.\n"}]},{"role":"user","parts":[{"text":"test query"}]}],"generationConfig":{},"tools":[{"google_search":{}}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Wed, 04 Feb 2026 18:28:10 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=13504
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "A \"test query\" refers to a structured request for information or an operation performed against a system, typically a database or a search engine, to verify its functionality, integrity, performance, or the accuracy of its results. It is a fundamental component of various testing methodologies in software development and data management.\n\n### Purpose and Context of Test Queries\n\nTest queries are utilized across different domains to ensure systems behave as expected:\n\n1.  **Database Testing**\n    In database testing, a test query is primarily an SQL (Structured Query Language) query designed to validate database operations, structures, and attributes. The main objectives include:\n    *   **Data Validation and Integrity:** Confirming that data is accurate, consistent, and adheres to predefined rules after operations like creation, reading, updating, or deleting (CRUD). Testers use SQL queries to retrieve data and compare it against expected outcomes.\n    *   **Schema Validation:** Verifying the database schema, including tables, columns, views, indexes, and triggers.\n    *   **Transaction Testing:** Ensuring that database transactions are processed correctly and maintain data consistency.\n    *   **Performance and Load Testing:** Constructing complex queries to assess the database's responsiveness and performance under varying loads.\n    *   **Business Rule Verification:** Checking that data manipulations align with the application's business requirements.\n    *   **Security Testing:** Identifying potential vulnerabilities in the database.\n    *   **ETL Testing:** Ensuring data is accurately extracted, transformed, and loaded without loss or damage during processing.\n\n    Proficiency in SQL is crucial for testers in this area, allowing them to interact with databases, validate data, and design effective test cases. Testing often involves creating mock tables with various data combinations to thoroughly test different parts of a query.\n\n2.  **General Software Testing**\n    Beyond direct database interaction, test queries can be part of broader software testing to:\n    *   **Verify Application Functionality:** When an application interacts with a backend database, test queries confirm that the data displayed on the user interface (UI) accurately reflects the data stored in the database. For instance, after a user registers via a web application, SQL queries can verify that the user's information is correctly stored in the database.\n    *   **Unit Testing:** In some contexts, unit tests might involve queries to create and clear down data for specific test scenarios, ensuring that business rules fire correctly. Tools like `tsqlt` are used for integration tests of SQL components.\n\n3.  **Search Engine Evaluation**\n    In the context of search engines, a \"test query\" is used to evaluate the effectiveness and relevance of search results:\n    *   **Relevance Assessment:** Test queries help determine how well search results fulfill a user's request and the relevance, expertise, authoritativeness, and trustworthiness of the content returned.\n    *   **Performance Optimization:** A/B testing is frequently employed, where variations in query terms, structure, or page elements are tested to measure their impact on user engagement metrics like click-through rates and dwell time.\n    *   **Functional Testing:** This includes checking that the search bar is not case-sensitive, that various input methods (e.g., \"Search\" button, Enter key) work, and that sorting options (e.g., by price, rating) function correctly.\n    *   **Security and Load Testing:** Similar to database testing, search functions undergo load testing to check performance and security testing for vulnerabilities like XSS or code injections.\n    *   **Information Retrieval (IR) Experiments:** In research, test collections with candidate queries, indexed datasets, and expected result rankings are used to measure metrics like recall and precision.\n\n### Executing and Evaluating Test Queries\n\nTest queries are often executed within query editors or specialized testing tools that allow testers to run the query, specify parameters, and view the results. The execution typically involves comparing the actual result of the query against a predetermined expected result. This comparison then determines whether the test case \"passed\" or \"failed\". For complex queries, techniques like decomposing them into smaller, testable views can simplify the testing process."
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0,
+              "groundingMetadata": {
+                "searchEntryPoint": {
+                  "renderedContent": "\u003cstyle\u003e\n.container {\n  align-items: center;\n  border-radius: 8px;\n  display: flex;\n  font-family: Google Sans, Roboto, sans-serif;\n  font-size: 14px;\n  line-height: 20px;\n  padding: 8px 12px;\n}\n.chip {\n  display: inline-block;\n  border: solid 1px;\n  border-radius: 16px;\n  min-width: 14px;\n  padding: 5px 16px;\n  text-align: center;\n  user-select: none;\n  margin: 0 8px;\n  -webkit-tap-highlight-color: transparent;\n}\n.carousel {\n  overflow: auto;\n  scrollbar-width: none;\n  white-space: nowrap;\n  margin-right: -12px;\n}\n.headline {\n  display: flex;\n  margin-right: 4px;\n}\n.gradient-container {\n  position: relative;\n}\n.gradient {\n  position: absolute;\n  transform: translate(3px, -9px);\n  height: 36px;\n  width: 9px;\n}\n@media (prefers-color-scheme: light) {\n  .container {\n    background-color: #fafafa;\n    box-shadow: 0 0 0 1px #0000000f;\n  }\n  .headline-label {\n    color: #1f1f1f;\n  }\n  .chip {\n    background-color: #ffffff;\n    border-color: #d2d2d2;\n    color: #5e5e5e;\n    text-decoration: none;\n  }\n  .chip:hover {\n    background-color: #f2f2f2;\n  }\n  .chip:focus {\n    background-color: #f2f2f2;\n  }\n  .chip:active {\n    background-color: #d8d8d8;\n    border-color: #b6b6b6;\n  }\n  .logo-dark {\n    display: none;\n  }\n  .gradient {\n    background: linear-gradient(90deg, #fafafa 15%, #fafafa00 100%);\n  }\n}\n@media (prefers-color-scheme: dark) {\n  .container {\n    background-color: #1f1f1f;\n    box-shadow: 0 0 0 1px #ffffff26;\n  }\n  .headline-label {\n    color: #fff;\n  }\n  .chip {\n    background-color: #2c2c2c;\n    border-color: #3c4043;\n    color: #fff;\n    text-decoration: none;\n  }\n  .chip:hover {\n    background-color: #353536;\n  }\n  .chip:focus {\n    background-color: #353536;\n  }\n  .chip:active {\n    background-color: #464849;\n    border-color: #53575b;\n  }\n  .logo-light {\n    display: none;\n  }\n  .gradient {\n    background: linear-gradient(90deg, #1f1f1f 15%, #1f1f1f00 100%);\n  }\n}\n\u003c/style\u003e\n\u003cdiv class=\"container\"\u003e\n  \u003cdiv class=\"headline\"\u003e\n    \u003csvg class=\"logo-light\" width=\"18\" height=\"18\" viewBox=\"9 9 35 35\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M42.8622 27.0064C42.8622 25.7839 42.7525 24.6084 42.5487 23.4799H26.3109V30.1568H35.5897C35.1821 32.3041 33.9596 34.1222 32.1258 35.3448V39.6864H37.7213C40.9814 36.677 42.8622 32.2571 42.8622 27.0064V27.0064Z\" fill=\"#4285F4\"/\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M26.3109 43.8555C30.9659 43.8555 34.8687 42.3195 37.7213 39.6863L32.1258 35.3447C30.5898 36.3792 28.6306 37.0061 26.3109 37.0061C21.8282 37.0061 18.0195 33.9811 16.6559 29.906H10.9194V34.3573C13.7563 39.9841 19.5712 43.8555 26.3109 43.8555V43.8555Z\" fill=\"#34A853\"/\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M16.6559 29.8904C16.3111 28.8559 16.1074 27.7588 16.1074 26.6146C16.1074 25.4704 16.3111 24.3733 16.6559 23.3388V18.8875H10.9194C9.74388 21.2072 9.06992 23.8247 9.06992 26.6146C9.06992 29.4045 9.74388 32.022 10.9194 34.3417L15.3864 30.8621L16.6559 29.8904V29.8904Z\" fill=\"#FBBC05\"/\u003e\n      \u003cpath fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M26.3109 16.2386C28.85 16.2386 31.107 17.1164 32.9095 18.8091L37.8466 13.8719C34.853 11.082 30.9659 9.3736 26.3109 9.3736C19.5712 9.3736 13.7563 13.245 10.9194 18.8875L16.6559 23.3388C18.0195 19.2636 21.8282 16.2386 26.3109 16.2386V16.2386Z\" fill=\"#EA4335\"/\u003e\n    \u003c/svg\u003e\n    \u003csvg class=\"logo-dark\" width=\"18\" height=\"18\" viewBox=\"0 0 48 48\" xmlns=\"http://www.w3.org/2000/svg\"\u003e\n      \u003ccircle cx=\"24\" cy=\"23\" fill=\"#FFF\" r=\"22\"/\u003e\n      \u003cpath d=\"M33.76 34.26c2.75-2.56 4.49-6.37 4.49-11.26 0-.89-.08-1.84-.29-3H24.01v5.99h8.03c-.4 2.02-1.5 3.56-3.07 4.56v.75l3.91 2.97h.88z\" fill=\"#4285F4\"/\u003e\n      \u003cpath d=\"M15.58 25.77A8.845 8.845 0 0 0 24 31.86c1.92 0 3.62-.46 4.97-1.31l4.79 3.71C31.14 36.7 27.65 38 24 38c-5.93 0-11.01-3.4-13.45-8.36l.17-1.01 4.06-2.85h.8z\" fill=\"#34A853\"/\u003e\n      \u003cpath d=\"M15.59 20.21a8.864 8.864 0 0 0 0 5.58l-5.03 3.86c-.98-2-1.53-4.25-1.53-6.64 0-2.39.55-4.64 1.53-6.64l1-.22 3.81 2.98.22 1.08z\" fill=\"#FBBC05\"/\u003e\n      \u003cpath d=\"M24 14.14c2.11 0 4.02.75 5.52 1.98l4.36-4.36C31.22 9.43 27.81 8 24 8c-5.93 0-11.01 3.4-13.45 8.36l5.03 3.85A8.86 8.86 0 0 1 24 14.14z\" fill=\"#EA4335\"/\u003e\n    \u003c/svg\u003e\n    \u003cdiv class=\"gradient-container\"\u003e\u003cdiv class=\"gradient\"\u003e\u003c/div\u003e\u003c/div\u003e\n  \u003c/div\u003e\n  \u003cdiv class=\"carousel\"\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF94_CMh2Vhi8hd7gavB4BDQ2wkQW4pevbVb90aZLU_rZYSiHDY7xLoTU_4chvjqzAGMceNEwzg83epfNSvdkUYA2SBVuuVX5vKStVmw3XtoOK_6ZEtqUj5dD96jB7Vmz3fNKPrRc7MfyNcYINrv--QvCtdSTrHkPjtpSZpayR3YeJFNSZ4ny6tQ2WbWahhlQjqE1SVM_veDbcu81o=\"\u003ehow to write a test query\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE8blWDQS6B_14oT6bDO4X3MPz69xYiHUkqdZcvuGT69JHPJwEGyOOdsqJTKiXEdUCJ0m5GzlojctVVk_u4DlEo0Fv9tKfPgKOAb-WRBiqkgwmmNSMNef6XMUBOrkJpWS2CwC-2jL_5NYs6W7aAxnhYVv1GtnveZuDaRGcSbfiW7NsdSg5bZkhWjb_q9noa4NF6vrH0cRFij69v\"\u003epurpose of a test query\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHSxthVqARaK_Tdc93BZAfsbpDnts5OqLrQm-fp_7Ihj4NhZ6tuM7tHdYQi76HiyO95T5jmpUn70UVhFUmFWB9oEEz-vidFfTTBSiwphKG2KuKVL0yeJZeAJRjsiuuvwZBUi37SFU4IeNO1eAzgniSMrF8MTW95FIkFxOL6sXPEgdPwbTfoR6GxSGdDBHtFtxI2l9S2x_Zd\"\u003ewhat is a test query\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEwthQ9eGWn7wiBSpCcWohrAD-UHqGtywO8B7KemUZLTesQ-IqUfTv_dZLmE4iiSIwjUvbyTfDcscW8crLqSvPkr6gqz2afsq9kQ4s898_f3-kD4QChiGL3t8vD-EA1ko2zigVpTx4Xqe8AyVx_F_e2-ucx-APDXxuBP-jngbbhQCZa9BBj2aNbls6hHD24WTgRP8FmzhrkXA==\"\u003etest query definition\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGzF8JuZFatkBrV_dgezk8bTDGOO5552--EM4zS-uwtUX5WipCtk46SX4FwmLTXwOpJjhtuPqZS82CaGn8XedAzZfuEuA-QVpaWaRdWnlG2Gh0sObW_Wc5n5_bwtF-NkC20Y-eTzwRoNY-Y9aVgY_HGruyDrvxlgEBtWloqUOLXc5N-yFBaD2cyvn3PRoPBgkUE_p0n4aQ0PZJwuXyrVCoxQQ==\"\u003etest query in database context\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEMfddyz7N5WRJkM7ODICYRKgifCRyDD0Fxc2YLw46JFQVh1XWxNRTPKUHbALo5pFQyBSKHVsf6-KA4N_U4cR0_dhzhiqBPPEQ4lOgWnBHKRDIKaeeg3HA-MpwwXlfmcZ2rOukk76iOo_n-JLaKB7mgrlYHtr-vVvlAY6XBhTP45mbq90RVsp6bIaDeFySVlKn9KdEt6YJnM4e-Nxcg_TI=\"\u003etest query in search engines\u003c/a\u003e\n    \u003ca class=\"chip\" href=\"https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEdBMEtIOkYa8XEp0ohiW_30mFdJ22L1EyrCU5lnpjlDsUymy74kf2sy-fgBvYOzNxOalcz5EiLF0Vo_mHOLVhIWGd_nr6gR4qP88XkKg362iTkzYGbVssVhrp2TqFWpGHTxgnRd_JzNQcsJWfzLuPH39XcAuI4RlmQDX-vcobpmA5ca1DXtfYJScw6mgIzmiEFFPVa4VZr0ztJGywiCInp9grMp7fl4fVmnOzw\"\u003etypes of test queries in software testing\u003c/a\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n"
+                },
+                "groundingChunks": [
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH_vwbP3TMuKBVLiPjVPGiM3Jj_jLKw2aSAS7CB6VIJ7516DGJ43QkpCNIl2gzHptv8q3OpwvGTm2xeHiA2b9XSJLaYIUmdQ6Z6R3Gi3DGY8l-f7OFvAQ0sXNqoPXYck5Vjxf3QL50=",
+                      "title": "circleci.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHF5tZPxP_T-pPJcGh8-FACYOfhtzPO_dx_xhLa6IH0kUUeVLCOPwMyKdA0Clk9WLy5SsN5iQTEVBwwJXiSGlfZHGgE7l9ZncnHDc3Rxz9qigghddChDdN99uFDQcDkniNvzb3_9QQCQWFoD2cDDqpuHu-CZpfp6d5R25cOGUZlH8fJ4SekmGQgBepE",
+                      "title": "tutorialspoint.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFhenuAWTKR4fD3vR5NojOH-wIsVaZLKmLyF1rMlnxTcLwA_cDGjalghqsFtnFYiaHJCz4eiVauC7r5sLsf5zKo7B0UTRJ8SdOjugBGhPGQHaDDyqkrOSqosvJRxuKbjy5h3ifMAwGFinIJo2WlVHl9Sr_vLIM=",
+                      "title": "qacraft.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHk5rh7UOfBk5cm7BYcavTDODe-EIlljmdp4NX1iddwg7BiXbVcG4i4BLO4tnzaeV1Bl-LUt0grpVegKk3aY-684RJPzsIEw_k_MPOAGC83gKFkcvnMBtFp3bhsuLHJbDPt98OrmovqHjyEvgaKcdAViwDjfJ2aNju66xVebYThdipLvZ-JqVboVssiAA==",
+                      "title": "geeksforgeeks.org"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFzBGUYXiJ1GxEAtPo1Vc_ibNHVSccqqZHWlmsvqS5e50gVa0RHm84LjfvjTJJSi8FMPXBoDii0jnUfYIYXL3QjMOkNmncd7jvLbUoxP-mORUGV9jJepJfH6QAo5OWVDKsojlvAoHL8BATgX3IQWkgT15ZEFt9YtsdEXNQwKw==",
+                      "title": "nashtechglobal.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHuTyo9ugMXdRi4QoiCBA8_NKEqy1WOfE5HnHrS9ocGX_PCNi2560_7iGzQXeHG-nwsh0gqA2mylxauN-akbinHmN_KR5qy0LA5GKrX_hHGuJpVUdsJfywI8uGJH6tCF_hlSDzzGwH68YRCggpBYDQ=",
+                      "title": "testmu.ai"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGpNv_U7lR4wMBv1QCi_5dbH5qCgMHGcuA4PpQPxLul5d001Vj7V7_v5nmxp0thz9NwuBLYi7Gvqn0MVGos5EmeqPb_IUEF7XdrIJG6SOgcoZLVCPzssBHjFNdX3EuZQXHADf4PJcCq58HLdghadnyDdol2gNi4KYnW9PBx6sbfaqgpBZ9N5-ZgvbC6-ou4Ks-tVC_niiVigOqhGvo=",
+                      "title": "qatestlab.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHo20gN3pxL-Tx25Iy9p-uW2b2wbuYSeFzPh6hqeimCSxN7XmjNHNlDE09QZFLFykx1Kfv2Y_fGtKQJ9qdwYnolyAl7IziAim0wWkcMCW7O-Nb4EM-xEJEntJr21M3ygm4HVTdkOZo=",
+                      "title": "youtube.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGY7hNK64xZOAM2DJRQd95KF12WHk6rhCN7l9GO-v8J6jNGJyi7ka0Mp9-N-8rEncKZ-ep3FTsvr735c_0aPZOFhosxlsThMzhGWx-zEaaPYIQr1VrRJOKQ_WGUDW9wG8M43CfdECwcRdz34s24OcgCx7LF8_Wc8lFZfKzsSnVQXxhaUyjpyG3Bwg-x",
+                      "title": "reddit.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFj370HQiIrPOEuRYmpwxVukYN9iLDcqXk-c7nG-iI2k7Hqe0tKtOQg-Td2L31YA3L-992SPzEsW_RwZEvnROjLbEaXAfYuHWfmHOQt6B9eUg1lXE5EqLmugui4QPZ3LBwluPiFThNY9GUjY-v0N8AGuNvbL3kULMex-V4L4lMgi05PuRUQ",
+                      "title": "reddit.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEVGYV_9E1hLhbrjh7xIf-umcTYnQJF_gqAE-tQQjQuzcd_8m7ijODrKjSgRmidc20y8Rfkq_r8LH6dErmsqIz2EFkWjREbXVt7Xk3mfAFSedLYfLA3mH4wXp8LvdXDNZmp_2bf0u7hG83d06TrRrb2-1jyfRYAxALtuwILhhEx8XQ-g8BiT24Uf-j2HrL-EpNjB29zqqsc-xLdYAHkFww=",
+                      "title": "stackexchange.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHIq8RymyfqSn-NWbAOQRlGCyCmkZePMV-wY8agPeWXUVGAYn6LIn0BqTqNfT8zkTUBwZuff7yXfqQW-IvLzha7XoKrZMvKZm-OVDoGv5W82LZyz80LMnkDzF96HGoMgVJZAtgwk0DCeh299ZDJBta99Y-lRaSp2pk-zRltOYlryDFK1FJu-6sIEK52c0bwGGQeRgMDtQ==",
+                      "title": "stackoverflow.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF4OwP42G6GZPeOIKtLWPVSlWN2auHhjZ3Npc_Aj4MB2c6oewm1KmU93f4GI9JQTtzYIS_nvcBBwk9lTRFSI-mBURBUb73MgGnAAvZz5BeVvhMXAw9DhECEc_pLwNq1fmOeNQsjVnnJPYvWCbjyvjwPnGb8Nc35dXMy_M2q7tTZnS6OxNWxGMKrcXC6gFLfDwyrnGq0Jw0qXA==",
+                      "title": "aicontentfy.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF6I7trR8w6k0PM-J083SE0brza1vDlt38uYm9EZgodEeERj4a1xMPUaFALOPZxsck_MSOswreCIHcvo8dB4NxCvgVAsTisXMZtMwnAfArByk8nQZOasZRJk8xwTo3xW0lpOOBlLdngb9Ynqjf1NpECcVqk9NusJHYDwv0XJZaWoy5SmHza8d7t6lbDwaX79qWnsUvi",
+                      "title": "google.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHAuKaYhX6FU-V3cF6y9OFDnqC73xPPiGpEs7yOy4P_-Rvfei7sqbLekPs-LAPC72KOYr0AqcyS4J6OrG3ukXQQ6exOnZm7O2_K-qvT-kcRAZxEPZzIvn9vKRNXp2aSx1BmVL6DNWu-EdPFiZE=",
+                      "title": "theusefularticles.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFSbmNLwPWmUntrlRF7YbxpVw6PjkrniQ50_Vhs223bmmPq8onn_HTb21scxx56iWGB1VQnm9q9nv0flNefDRtmARssEwAFdjTLcIStQLi7PjoXzhQrXNf6KBgfx1dkksv1vEKux0xfgVBW0wvLK_HQxl688T9SWwCNVmCnPVYGdtuBsNihgQ==",
+                      "title": "medium.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGv9PrA3vcm-L-MLdMQ65lR66Os-SkMpdUJUFpNBzxQqLekH4h_w795DSZs_cvc54f3j-AZQNkrD7rxbtSxKev1AwhX94ohHddvmkW78rtlPdhGI1NmzTQ1bHs-yG61MFmknhcYWVknBkEGEPel1O0VawOiFhLeDcq9JVYQYWAxc71zJewY9IetRQ==",
+                      "title": "stackexchange.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGe6m_0ciWH5jbfj6dYsvmtHNxfo-9M-ojLnUjooTiBN8JC7iudiHKNgwFFWYBBd03QZr9qrCJ5CPttKglAqdxsphUqtXhH5rCgKl97hLdJfuQJEP2hJU4o2Jr0y0y3SBRScIL_hZG-aPU_0EftLegB",
+                      "title": "windev.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGjBf0772aTRDj4TIZg1AY30a_OFIui3y1j13ixaQXXwWdF1gG6zwUJgflCMS0wVBKnT-RmZ7i1ZD22LoRIaphyPB9ZwKwT2vMmZY57m16a-Dm8PA7OBsIXvycugJzH7B1a9S2zwdf7kQPEkNPtKmG1HfEJKRyW7vsF1D1TzNjQpAmPZA==",
+                      "title": "oracle.com"
+                    }
+                  },
+                  {
+                    "web": {
+                      "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF2A3IlUQvruAltgwvWvy-Wf_iyFJ9bojAWt0bXY5zx-jQXe6H1MHnmhOEdkuRYf1uYj9dsR7roMf-fYaJGr-7d6Fr4bj0gSUo6hg1bPIhEkGVWpbhzC4C8te-bUKTpfKfwoOb78blVf4FJdrYNOHRGvESimR71Ed8S9cyk6u6i4rSC",
+                      "title": "stackoverflow.com"
+                    }
+                  }
+                ],
+                "groundingSupports": [
+                  {
+                    "segment": {
+                      "startIndex": 476,
+                      "endIndex": 657,
+                      "text": "**Database Testing**\n    In database testing, a test query is primarily an SQL (Structured Query Language) query designed to validate database operations, structures, and attributes"
+                    },
+                    "groundingChunkIndices": [
+                      0
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 659,
+                      "endIndex": 878,
+                      "text": "The main objectives include:\n    *   **Data Validation and Integrity:** Confirming that data is accurate, consistent, and adheres to predefined rules after operations like creation, reading, updating, or deleting (CRUD)"
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 880,
+                      "endIndex": 961,
+                      "text": "Testers use SQL queries to retrieve data and compare it against expected outcomes"
+                    },
+                    "groundingChunkIndices": [
+                      6,
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 967,
+                      "endIndex": 1080,
+                      "text": "*   **Schema Validation:** Verifying the database schema, including tables, columns, views, indexes, and triggers"
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      1,
+                      3
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1086,
+                      "endIndex": 1204,
+                      "text": "*   **Transaction Testing:** Ensuring that database transactions are processed correctly and maintain data consistency"
+                    },
+                    "groundingChunkIndices": [
+                      0
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1210,
+                      "endIndex": 1352,
+                      "text": "*   **Performance and Load Testing:** Constructing complex queries to assess the database's responsiveness and performance under varying loads"
+                    },
+                    "groundingChunkIndices": [
+                      3,
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1358,
+                      "endIndex": 1477,
+                      "text": "*   **Business Rule Verification:** Checking that data manipulations align with the application's business requirements"
+                    },
+                    "groundingChunkIndices": [
+                      8,
+                      3
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1483,
+                      "endIndex": 1562,
+                      "text": "*   **Security Testing:** Identifying potential vulnerabilities in the database"
+                    },
+                    "groundingChunkIndices": [
+                      3
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1568,
+                      "endIndex": 1692,
+                      "text": "*   **ETL Testing:** Ensuring data is accurately extracted, transformed, and loaded without loss or damage during processing"
+                    },
+                    "groundingChunkIndices": [
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1699,
+                      "endIndex": 1843,
+                      "text": "Proficiency in SQL is crucial for testers in this area, allowing them to interact with databases, validate data, and design effective test cases"
+                    },
+                    "groundingChunkIndices": [
+                      2,
+                      6,
+                      4,
+                      5
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1845,
+                      "endIndex": 1965,
+                      "text": "Testing often involves creating mock tables with various data combinations to thoroughly test different parts of a query"
+                    },
+                    "groundingChunkIndices": [
+                      9
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 1972,
+                      "endIndex": 2322,
+                      "text": "**General Software Testing**\n    Beyond direct database interaction, test queries can be part of broader software testing to:\n    *   **Verify Application Functionality:** When an application interacts with a backend database, test queries confirm that the data displayed on the user interface (UI) accurately reflects the data stored in the database"
+                    },
+                    "groundingChunkIndices": [
+                      0,
+                      6
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2324,
+                      "endIndex": 2470,
+                      "text": "For instance, after a user registers via a web application, SQL queries can verify that the user's information is correctly stored in the database"
+                    },
+                    "groundingChunkIndices": [
+                      4
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2476,
+                      "endIndex": 2651,
+                      "text": "*   **Unit Testing:** In some contexts, unit tests might involve queries to create and clear down data for specific test scenarios, ensuring that business rules fire correctly"
+                    },
+                    "groundingChunkIndices": [
+                      10,
+                      11
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2653,
+                      "endIndex": 2720,
+                      "text": "Tools like `tsqlt` are used for integration tests of SQL components"
+                    },
+                    "groundingChunkIndices": [
+                      9
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 2727,
+                      "endIndex": 3083,
+                      "text": "**Search Engine Evaluation**\n    In the context of search engines, a \"test query\" is used to evaluate the effectiveness and relevance of search results:\n    *   **Relevance Assessment:** Test queries help determine how well search results fulfill a user's request and the relevance, expertise, authoritativeness, and trustworthiness of the content returned"
+                    },
+                    "groundingChunkIndices": [
+                      12,
+                      13
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3089,
+                      "endIndex": 3321,
+                      "text": "*   **Performance Optimization:** A/B testing is frequently employed, where variations in query terms, structure, or page elements are tested to measure their impact on user engagement metrics like click-through rates and dwell time"
+                    },
+                    "groundingChunkIndices": [
+                      12
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3327,
+                      "endIndex": 3557,
+                      "text": "*   **Functional Testing:** This includes checking that the search bar is not case-sensitive, that various input methods (e.g., \"Search\" button, Enter key) work, and that sorting options (e.g., by price, rating) function correctly"
+                    },
+                    "groundingChunkIndices": [
+                      14
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3563,
+                      "endIndex": 3754,
+                      "text": "*   **Security and Load Testing:** Similar to database testing, search functions undergo load testing to check performance and security testing for vulnerabilities like XSS or code injections"
+                    },
+                    "groundingChunkIndices": [
+                      14,
+                      3
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 3760,
+                      "endIndex": 3962,
+                      "text": "*   **Information Retrieval (IR) Experiments:** In research, test collections with candidate queries, indexed datasets, and expected result rankings are used to measure metrics like recall and precision"
+                    },
+                    "groundingChunkIndices": [
+                      15,
+                      16
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4008,
+                      "endIndex": 4167,
+                      "text": "Test queries are often executed within query editors or specialized testing tools that allow testers to run the query, specify parameters, and view the results"
+                    },
+                    "groundingChunkIndices": [
+                      17,
+                      18
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4169,
+                      "endIndex": 4282,
+                      "text": "The execution typically involves comparing the actual result of the query against a predetermined expected result"
+                    },
+                    "groundingChunkIndices": [
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4284,
+                      "endIndex": 4358,
+                      "text": "This comparison then determines whether the test case \"passed\" or \"failed\""
+                    },
+                    "groundingChunkIndices": [
+                      7
+                    ]
+                  },
+                  {
+                    "segment": {
+                      "startIndex": 4360,
+                      "endIndex": 4475,
+                      "text": "For complex queries, techniques like decomposing them into smaller, testable views can simplify the testing process"
+                    },
+                    "groundingChunkIndices": [
+                      19
+                    ]
+                  }
+                ],
+                "webSearchQueries": [
+                  "what is a test query",
+                  "test query definition",
+                  "purpose of a test query",
+                  "types of test queries in software testing",
+                  "test query in database context",
+                  "test query in search engines",
+                  "how to write a test query"
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 27,
+            "candidatesTokenCount": 912,
+            "totalTokenCount": 2215,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 27
+              }
+            ],
+            "toolUsePromptTokenCount": 304,
+            "toolUsePromptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 304
+              }
+            ],
+            "thoughtsTokenCount": 972
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "uo-DabqrCaXgz7IPgu3ciQ0"
+        }
+  recorded_at: Wed, 04 Feb 2026 18:28:10 GMT
+recorded_with: VCR 6.4.0

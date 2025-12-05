@@ -1,0 +1,94 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"You
+        are a math expert. Always show your work step by step."}]},{"role":"user","parts":[{"text":"What
+        is 3+3?"}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"The
+        path to the file you want to edit."},"old":{"type":"STRING","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"web_search","description":"useful
+        for searching the web","parameters":{"type":"OBJECT","properties":{"query":{"type":"STRING","description":"The
+        search query"}},"required":["query"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Wed, 04 Feb 2026 18:56:48 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=1526
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "3 + 3 = 6",
+                    "thoughtSignature": "CqgBAb4+9vtSkJVkNdx8iiVn6RXMBEJmt7EhpLKzq1KUJT1hA1XqjNwLDaVI32tyPBctN2st9Ng0hDtp+AdHdYCht3aaZi/RYO84JVOiN0pvUt23x9JvGVMF8NkAy7uZe9IhoRsF5HDQ9yGosqSCJnN2s9EYt2V+JGW4sSE+UvYbYiu1E7YA5Wc5xHcEiMdi0M7DLi8Ti72Ms84Gw8aTEZmjL63darJOzY7H"
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 248,
+            "candidatesTokenCount": 7,
+            "totalTokenCount": 287,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 248
+              }
+            ],
+            "thoughtsTokenCount": 32
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "cJaDaePrA_fpz7IP4ZalkAw"
+        }
+  recorded_at: Wed, 04 Feb 2026 18:56:48 GMT
+recorded_with: VCR 6.4.0
