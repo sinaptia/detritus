@@ -57,22 +57,26 @@ def save_chat
     id: $state.current_chat_id,
     model: $state.model,
     provider: $state.provider,
-    messages: $state.chat.messages
+    messages: $state.chat.messages.map(&:to_h)
   }
-  File.write(File.join(".detritus/chats", "#{$state.current_chat_id}"), Marshal.dump(data))
+
+  File.write(".detritus/chats/#{$state.current_chat_id}.yml", YAML.dump(data))
 end
 
 def load_chat(id)
-  session_file = File.expand_path(".detritus/chats/#{id}")
-  return nil unless File.exist?(session_file)
+  file = ".detritus/chats/#{id}.yml"
+  return nil unless File.exist?(file)
 
-  chat_data = Marshal.load(File.read(session_file))
+  data = YAML.unsafe_load(File.read(file))
   create_chat(instructions: nil).tap do |chat|
-    chat_data[:messages].each { |msg| chat.add_message(msg) }
-    puts "[✓ Chat loaded (#{chat_data[:messages].size} messages)]"
+    data[:messages].each do |message|
+      message[:tool_calls]&.transform_values! { |tc| RubyLLM::ToolCall.new(**tc) }
+      chat.add_message(RubyLLM::Message.new(message))
+    end
+    puts "[✓ Chat loaded (#{data[:messages].size} messages)]"
   end
 rescue => e
-  puts "[✗ failed to load chat: #{e.message}]"
+  puts "[✗ Failed to load chat: #{e.message}]"
 end
 
 # ===  Tools ===
@@ -202,14 +206,16 @@ def configure
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|
+    c.request_timeout = 600
     case $state.provider
     when "anthropic" then c.anthropic_api_key = $state.api_key || ENV["ANTHROPIC_API_KEY"]
-    when "gemini" then c.gemini_api_key = $state.api_key || ENV["GEMINI_API_KEY"]
     when "ollama" then c.ollama_api_base = $state.api_base || "http://localhost:11434/v1"
     when "openai"
       c.openai_api_key = $state.api_key || ENV["OPENAI_API_KEY"] || "not-needed"
       c.openai_api_base = $state.api_base if $state.api_base
     end
+    # Always configure Gemini for WebSearch tool
+    c.gemini_api_key = ($state.provider == "gemini" && $state.api_key) ? $state.api_key : ENV["GEMINI_API_KEY"]
   end
 
   # === Readline History ====
@@ -231,12 +237,9 @@ return if ENV["DETRITUS_TEST"]
 if ARGV.first ## non-interactive mode
   handle_prompt(ARGV.join(" "))
 else
-  loop do
+  loop do # Interactive REPL
     input = Reline.readline("> ", true)
-    if input.nil?
-      (puts "[✓ Bye!]"
-       exit(0))
-    end # Ctrl+D to exit
+    puts "[✓ Bye!]" and exit(0) if input.nil? # Ctrl+D to exit
     next if input.empty?
     handle_prompt(input)
   rescue Interrupt

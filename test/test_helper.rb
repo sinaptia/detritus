@@ -43,7 +43,9 @@ require_relative "../detritus"
 # Helper to create a temporary test directory with .detritus structure
 def create_test_dir
   root = File.dirname(File.expand_path(__FILE__, "../.."))
-  dir = File.join(root, "tmp", Time.now.strftime("%F-%H-%M-%S"))
+  # Use nanoseconds and PID for uniqueness to avoid collisions in fast test runs
+  timestamp = "#{Time.now.strftime('%F-%H-%M-%S')}-#{Time.now.nsec}-#{Process.pid}"
+  dir = File.join(root, "test", "tmp", timestamp)
   FileUtils.mkdir_p(dir)
   FileUtils.mkdir_p(File.join(dir, ".detritus", "prompts"))
   FileUtils.mkdir_p(File.join(dir, ".detritus", "scripts"))
