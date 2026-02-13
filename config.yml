@@ -18,7 +18,7 @@
 # Ollama
 provider: ollama
 model: gemini-3-flash-preview:cloud
-api_base: http://localhost:11434/v1
+api_base: http://host.docker.internal:11434/v1
 
 # LMStudio or other OpenAI-compatible
 # provider: openai

@@ -3,7 +3,7 @@ require "bundler/inline"
 
 gemfile do
   source "https://rubygems.org"
-  gem "ruby_llm"
+  gem "ruby_llm", "~> 1.11"
   gem "reline"
   gem "ostruct"
   gem "yaml"
@@ -156,7 +156,7 @@ class SubAgent < RubyLLM::Tool
       chat.add_message(role: :user, content: File.read(prompt_file).lines.drop(1).join)
     end
 
-    chat.ask(task).content.tap { |r| puts "{SubAgent completed: #{r[0..100]}...}" }
+    chat.ask(task).content.to_s.tap { |r| puts "{SubAgent completed: #{r[0..100]}...}" }
   rescue => e
     {error: e.message, backtrace: e.backtrace.first(3)}
   end
@@ -189,7 +189,10 @@ def handle_prompt(prompt)
   when %r{^/(\w+)\s*(.*)}
     $state.chat.ask(prompt) if (prompt = build_prompt($1, $2))
   else
-    $state.chat.ask(prompt) { |chunk| print chunk.content }
+    $state.chat.ask(prompt) do |chunk|
+      print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
+      print chunk.content if chunk.content&.strip
+    end
     puts
   end
 end
