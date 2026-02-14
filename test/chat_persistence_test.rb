@@ -22,7 +22,7 @@ class ChatPersistenceTest < DetritusTest
     assert_includes tool_classes, EditFile
     assert_includes tool_classes, Bash
     assert_includes tool_classes, WebSearch
-    assert_includes tool_classes, SubAgent
+    assert_includes tool_classes, Self
   end
 
   def test_creates_chat_with_custom_tools

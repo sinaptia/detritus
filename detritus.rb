@@ -45,7 +45,7 @@ def available_scripts
 end
 
 # === Chat creation and persistence methods ===
-def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, WebSearch, SubAgent], persist: true)
+def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, WebSearch, Self], persist: $state.persist_chat)
   chat = RubyLLM::Chat.new(model: $state.model, provider: $state.provider)
   chat.with_instructions(instructions) if instructions
   chat.on_end_message { |msg| save_chat } if persist
@@ -135,28 +135,15 @@ class WebSearch < RubyLLM::Tool
   end
 end
 
-class SubAgent < RubyLLM::Tool
-  description "Delegate focused tasks to a specialized sub-agent with optional prompt/skill"
+class Self < RubyLLM::Tool
+  description "Executes Ruby code passed in the context of the current running agent. This is useful for inspecting and manipulating your internal state, send commands to yourself, and anything that you can think of running in the context of your own conciousness"
 
-  param :task,
-    desc: "The complete task description including all necessary context, data, and code snippets the sub-agent needs",
-    type: :string,
-    required: true
+  param :code, desc: "Ruby code to execute", required: true
 
-  param :use_prompt,
-    desc: "Optional: name of a prompt/skill from the prompts library (e.g., 'plan', 'code_review')",
-    type: :string,
-    required: false
-
-  def execute(task:, use_prompt: nil)
-    puts "\n{SubAgent model:#{$state.provider}/#{$state.model} prompt:#{use_prompt || "system"} task:#{task[0..60]}...}"
-    chat = create_chat(tools: [EditFile, Bash, WebSearch], persist: false)
-
-    if use_prompt && (prompt_file = find_prompt_file(use_prompt))
-      chat.add_message(role: :user, content: File.read(prompt_file).lines.drop(1).join)
-    end
-
-    chat.ask(task).content.to_s.tap { |r| puts "{SubAgent completed: #{r[0..100]}...}" }
+  def execute(code:)
+    puts "{Self #{code[0..100]}...}"
+    result = eval(code, TOPLEVEL_BINDING)
+    result.inspect
   rescue => e
     {error: e.message, backtrace: e.backtrace.first(3)}
   end

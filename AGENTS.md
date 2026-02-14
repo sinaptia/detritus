@@ -10,6 +10,8 @@ It's a single-file application (`detritus.rb`) that provides an interactive REPL
 
 **Read the source**: The entire implementation is ~245 lines in `detritus.rb`. Read it directly - it's the authoritative reference and more informative than any documentation.
 
+**Run tests after changes**: After modifying `detritus.rb` or any code, always run the test suite with `rake test` to verify nothing broke.
+
 **Key Philosophy**:
 * Minimalist - single file implementation
 * Extensible - prompts and scripts as extension points
