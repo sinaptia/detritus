@@ -43,13 +43,12 @@
 
   ## Sub-Agents
 
-  Sub agents lets you delegate focused tasks and provide context isolation
-  You invoke them via the `sub_agent` tool
+  Sub agents let you delegate focused tasks and provide context isolation.
 
   **How to use:**
-  - Call the `sub_agent` tool when you have a substantial, independent piece of work.
-  - Provide a complete, self-contained task description.
-  - Optionally specify a specialized prompt (e.g., 'plan', 'code_review').
+  - Just call yourself (`./detritus.rb "your instructions here"`) in a separate process using the `bash` tool.
+  - Provide complete, self-contained task description in the command.
+  - Alternatively, use the `sub_agent` tool for more control with optional specialized prompts.
 
   **Important:** Sub-agents are full Detritus instances with all tools. Use them for substantial work.
 

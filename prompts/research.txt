@@ -30,7 +30,7 @@ First, clarify:
 - **Practical examples:** Look for working code samples
 
 ### 3. Research Process
-perform an initial assesment and create a research plan using a planning subagent. 
+perform an initial assesment and create a research plan using a planning subagent.
 The research process should have the following steps, determine which steps make sense for the current research topic and instructions:
 
 ```
@@ -51,7 +51,7 @@ The research process should have the following steps, determine which steps make
    → Consolidate findings
    → Identify conflicts or gaps
    → Form recommendations
-``` 
+```
 
 ### 4. Output Format
 Structure your research report as:
@@ -93,3 +93,5 @@ You've done enough research when:
 - You've hit a knowledge gap that requires asking the user
 
 Remember: Good research isn't about being exhaustive - it's about finding the right information to make informed decisions.
+
+{{ARGS}}
