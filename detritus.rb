@@ -181,6 +181,9 @@ def handle_prompt(prompt)
     $state.chat = load_chat($1) || $state.chat
   when %r{^/resume\z}
     puts Dir.glob(".detritus/chats/*").map { |f| File.basename(f, "") }
+  when %r{^!(.+)\z}m
+    puts(out = `#{$1}`)
+    $state.chat.add_message(role: :user, content: "#{$1}\n\n#{out}")
   when %r{^/model\s+([^/]+)/(.+)}
     $state.provider = $1
     $state.model = $2
@@ -242,8 +245,12 @@ if ARGV.first ## non-interactive mode
 else
   loop do # Interactive REPL
     input = Reline.readline("> ", true)
-    puts "[✓ Bye!]" and exit(0) if input.nil? # Ctrl+D to exit
+    if input.nil? # Ctrl+D to exit
+      puts "[✓ Bye!]"
+      break
+    end
     next if input.empty?
+
     handle_prompt(input)
   rescue Interrupt
   end

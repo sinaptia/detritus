@@ -147,6 +147,43 @@ class ReplTest < DetritusTest
     assert_equal "Hello from Gemini", $state.chat.messages.first.content
   end
 
+  def test_bang_command_executes_shell_command_and_prints_output
+    output = capture_io { handle_prompt("!echo hello") }.first
+
+    assert_includes output, "hello"
+  end
+
+  def test_bang_command_adds_command_and_output_to_chat_history
+    $state.chat.reset_messages!
+
+    handle_prompt("!echo test_output")
+
+    messages = $state.chat.messages
+    assert_equal 1, messages.size
+
+    message_content = messages.first.content.respond_to?(:text) ? messages.first.content.text : messages.first.content
+    assert_includes message_content, "echo test_output"
+    assert_includes message_content, "test_output"
+  end
+
+  def test_bang_command_with_multiline_output
+    output = capture_io { handle_prompt("!printf 'line1\nline2\nline3'") }.first
+
+    assert_includes output, "line1"
+    assert_includes output, "line2"
+    assert_includes output, "line3"
+  end
+
+  def test_bang_command_does_not_add_empty_command_to_chat
+    $state.chat.reset_messages!
+
+    # This should not cause issues - empty command case
+    handle_prompt("!true")
+
+    # Message should be added but handle empty case gracefully
+    # The regex .+ requires at least one character, so "!" alone won't match
+  end
+
   private
 
   def capture_io

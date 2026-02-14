@@ -17,7 +17,10 @@
 
 # Ollama
 provider: ollama
-model: gemini-3-flash-preview:cloud
+#model: minimax-m2.5:cloud #
+#model: gemini-3-flash-preview:cloud
+model: kimi-k2.5:cloud
+#model: glm-5:cloud
 api_base: http://host.docker.internal:11434/v1
 
 # LMStudio or other OpenAI-compatible
