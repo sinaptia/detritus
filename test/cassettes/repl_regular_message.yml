@@ -16,14 +16,10 @@ http_interactions:
         flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
         shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"web_search","description":"useful
         for searching the web","parameters":{"type":"OBJECT","properties":{"query":{"type":"STRING","description":"The
-        search query"}},"required":["query"]}},{"name":"sub_agent","description":"Delegate
-        focused tasks to a specialized sub-agent with optional prompt/skill","parameters":{"type":"OBJECT","properties":{"task":{"type":"STRING","description":"The
-        complete task description including all necessary context, data, and code
-        snippets the sub-agent needs"},"use_prompt":{"type":"STRING","description":"Optional:
-        name of a prompt/skill from the prompts library (e.g., ''plan'', ''code_review'')"}},"required":["task"]}}]}]}'
+        search query"}},"required":["query"]}}]}]}'
     headers:
       User-Agent:
-      - Faraday v2.14.0
+      - Faraday v2.14.1
       X-Goog-Api-Key:
       - "<GEMINI_API_KEY>"
       Content-Type:
@@ -48,7 +44,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Wed, 04 Feb 2026 18:28:35 GMT
+      - Sat, 14 Feb 2026 21:54:35 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -58,15 +54,15 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1304
+      - gfet4t7; dur=1440
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        345,\"candidatesTokenCount\": 1,\"totalTokenCount\": 346,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 345}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"04-DafOSOeTtz7IPhL2jmQk\"}\r\n\r\n"
-  recorded_at: Wed, 04 Feb 2026 18:28:35 GMT
+        238,\"candidatesTokenCount\": 1,\"totalTokenCount\": 239,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 238}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"G--Qaf3rIu-_qtsPtteEgQc\"}\r\n\r\n"
+  recorded_at: Sat, 14 Feb 2026 21:54:35 GMT
 recorded_with: VCR 6.4.0

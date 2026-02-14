@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
     body:
       encoding: UTF-8
       string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"Greeting
@@ -16,14 +16,10 @@ http_interactions:
         flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
         shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"web_search","description":"useful
         for searching the web","parameters":{"type":"OBJECT","properties":{"query":{"type":"STRING","description":"The
-        search query"}},"required":["query"]}},{"name":"sub_agent","description":"Delegate
-        focused tasks to a specialized sub-agent with optional prompt/skill","parameters":{"type":"OBJECT","properties":{"task":{"type":"STRING","description":"The
-        complete task description including all necessary context, data, and code
-        snippets the sub-agent needs"},"use_prompt":{"type":"STRING","description":"Optional:
-        name of a prompt/skill from the prompts library (e.g., ''plan'', ''code_review'')"}},"required":["task"]}}]}]}'
+        search query"}},"required":["query"]}}]}]}'
     headers:
       User-Agent:
-      - Faraday v2.14.0
+      - Faraday v2.14.1
       X-Goog-Api-Key:
       - "<GEMINI_API_KEY>"
       Content-Type:
@@ -38,13 +34,17 @@ http_interactions:
       message: OK
     headers:
       Content-Type:
-      - application/json; charset=UTF-8
+      - text/event-stream
+      Content-Disposition:
+      - attachment
       Vary:
       - Origin
       - Referer
       - X-Origin
+      Transfer-Encoding:
+      - chunked
       Date:
-      - Wed, 04 Feb 2026 18:28:37 GMT
+      - Sat, 14 Feb 2026 21:54:08 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -54,44 +54,19 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1467
+      - gfet4t7; dur=1477
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
     body:
-      encoding: ASCII-8BIT
-      string: |
-        {
-          "candidates": [
-            {
-              "content": {
-                "parts": [
-                  {
-                    "text": "Hello to world!",
-                    "thoughtSignature": "CqYBAb4+9vukgdSTYzeeM3k0iPd33lbZ4yM+nfoQ6sMNo9o1GKe+cQI3QYi+V0iE53frh7xsNKLIvhYenLVnlpUos4yD5Qg/jthS8GgQ3+Iu+6iCJ7HKVBogN0bl4wq3DOk6o3QiAc9YXECXw6LXS3fgEp0wlWU75NUtfOmNxHJudjUPWa9MnwUfVUT1aeQu5EGFZS3g6802DiwPNEswkQPxrdckObX/ag=="
-                  }
-                ],
-                "role": "model"
-              },
-              "finishReason": "STOP",
-              "index": 0
-            }
-          ],
-          "usageMetadata": {
-            "promptTokenCount": 340,
-            "candidatesTokenCount": 4,
-            "totalTokenCount": 377,
-            "promptTokensDetails": [
-              {
-                "modality": "TEXT",
-                "tokenCount": 340
-              }
-            ],
-            "thoughtsTokenCount": 33
-          },
-          "modelVersion": "gemini-2.5-flash",
-          "responseId": "1Y-DabHyIKLRz7IPg7bXoQY"
-        }
-  recorded_at: Wed, 04 Feb 2026 18:28:37 GMT
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello
+        world\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        233,\"candidatesTokenCount\": 2,\"totalTokenCount\": 235,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 233}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"_-6QacGGOO-_qtsPtteEgQc\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"!\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
+        0}],\"usageMetadata\": {\"promptTokenCount\": 233,\"candidatesTokenCount\":
+        3,\"totalTokenCount\": 236,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        233}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"_-6QacGGOO-_qtsPtteEgQc\"}\r\n\r\n"
+  recorded_at: Sat, 14 Feb 2026 21:54:08 GMT
 recorded_with: VCR 6.4.0

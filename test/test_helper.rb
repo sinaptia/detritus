@@ -25,7 +25,7 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.default_cassette_options = {
     record: :once,
-    match_requests_on: [:method, :uri, :body]
+    match_requests_on: [:method, :uri]  # exclude body - contains dynamic content
   }
 
   # Filter sensitive data

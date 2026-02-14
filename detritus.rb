@@ -1,36 +1,47 @@
 #!/usr/bin/env ruby
-# frozen_string_literal: true
+require "bundler/inline"
 
-require "bundler/setup"
-require "ruby_llm"
-require "dotenv"
-require "readline"
-require "fileutils"
-require "yaml"
-require "json"
-
-Dotenv.load
-
-module Detritus
-  State = Struct.new(:model, :provider, :instructions, :chat, :current_chat_id, :history_file, :session, :persist_chat, keyword_init: true)
+gemfile do
+  source "https://rubygems.org"
+  gem "ruby_llm", "~> 1.11"
+  gem "reline"
+  gem "ostruct"
+  gem "yaml"
+  gem "json"
+  gem "fileutils"
 end
 
-$state = Detritus::State.new
-
-def scripts_dir
-  @scripts_dir ||= File.expand_path(".detritus/scripts", Dir.pwd)
+# === Scripts and Prompts file searches (global ~/.detritus and project-local .detritus) ===
+def find_resources(subdir, pattern)
+  [".detritus/#{subdir}", "#{ENV["HOME"]}/.detritus/#{subdir}"]
+    .flat_map { |dir| Dir.glob(File.join(File.expand_path(dir), pattern)) }
+    .uniq { |path| File.basename(path) }
 end
 
-SCRIPTS_PATH = File.expand_path("~/.detritus/scripts")
+def find_prompt_file(name) = find_resources("prompts", "#{name}{,.txt}").first
+def find_script(name) = find_resources("scripts", name).find { |path| File.executable?(path) }
 
-Dir.glob(File.join(SCRIPTS_PATH, "*")).each { |script| require script if File.file?(script) }
-Dir.glob(File.join(scripts_dir, "*")).each { |script| require script if File.file?(script) }
+def available_prompts
+  find_resources("prompts", "*.txt")
+    .reject { |path| File.basename(path) == "system.txt" }
+    .map { |file| [File.basename(file), File.open(file, &:readline).strip] }
+    .map { |file, description| "- `#{file}`: #{description}" }.join("\n")
+end
+
+def build_prompt(command, args)
+  if (prompt_file = find_prompt_file(command))
+    File.read(prompt_file).gsub("{{ARGS}}", args)
+  else
+    puts "[✘ Error: Prompt '#{command}' not found"
+  end
+end
 
 def available_scripts
-  @available_scripts ||= begin
-    Dir.glob(File.join(SCRIPTS_PATH, "*.rb")).map { |f| File.basename(f, ".rb") } +
-    Dir.glob(File.join(scripts_dir, "*.rb")).map { |f| File.basename(f, ".rb") }
-  end
+  find_resources("scripts", "*")
+    .select { |path| File.executable?(path) && File.file?(path) }
+    .map { |file| [file, `#{file} --help 2>&1`.lines.first&.strip || "No description available"] }
+    .to_h
+    .map { |name, desc| "- `#{name}`: #{desc}" }.join("\n")
 end
 
 # === Chat creation and persistence methods ===
@@ -112,48 +123,57 @@ end
 
 # ===  Tools ===
 class EditFile < RubyLLM::Tool
-  description "Edit a file - useful for refactoring or making changes to multiple parts of a file"
-
-  param :path, desc: "The path to the file to edit"
-  param :old, desc: "The text to find and replace (must match exactly, use surrounding lines for context)"
-  param :new, desc: "The replacement text"
-  param :create, desc: "Create the file if it doesn't exist", type: :boolean, default: false
+  description "Changes a specific block of text in a file. To avoid mistakes, the `old` block must appear exactly once in the file."
+  param :path, required: true, desc: "The path to the file you want to edit."
+  param :old, required: true, desc: "The EXACT lines of text you want to replace. If it appears multiple times, include surrounding lines to make it unique."
+  param :new, required: true, desc: "The lines of text you want to use as replacement."
+  param :create, type: :boolean, desc: "Optional flag to create the file if it doesn't exist."
 
   def execute(path:, old:, new:, create: false)
-    puts "\n{EditFile: #{path}}"
-    File.write(path, File.read(path).gsub(old, new))
-    "[✓ Edited #{path}]"
+    puts "\n{FileEdit path: #{path}}"
+    FileUtils.touch(path) if create
+    if (content = File.read(path).sub!(old, new))
+      File.write(path, content)
+      "ok"
+    else
+      {error: "<old> text not found in file. You might need to re-read the file"}
+    end
   rescue => e
-    puts e.backtrace.first(3)
-    "[✗ Error: #{e.message}]"
+    {error: "#{e.class.name} - #{e.message}"}
   end
 end
 
 class Bash < RubyLLM::Tool
-  description "Run shell commands and return the result"
-
-  param :command, desc: "The shell command to run", required: true
+  description "Run shell command"
+  param :command, desc: "Command"
 
   def execute(command:)
-    puts "\n{Bash: #{command[0..80]}#{'...' if command.length > 80}}"
-    result = `#{command}`
-    puts result.lines.last(40).join if result.lines.count > 50
-    result
+    puts "\n{Bash #{command[0..100]}...}"
+    Bundler.with_unbundled_env { `#{command}` }
   rescue => e
-    "[✗ Error: #{e.message}]"
+    {error: e.message}
   end
 end
 
 class WebSearch < RubyLLM::Tool
   description "useful for searching the web"
 
-  param :query, desc: "The search query", required: true
+  param :query,
+    desc: "The search query",
+    required: true
 
   def execute(query:)
-    puts "\n{WebSearch: #{query[0..60]}#{'...' if query.length > 60}}"
-    RubyLLM::Provider.for($state.provider).send(:search, query)
+    puts "{WebSearch query: #{query}}"
+
+    @chat = RubyLLM.chat(model: "gemini-2.5-flash")
+    @chat.with_params(tools: [{google_search: {}}])
+    @chat.with_instructions(<<~PROMPT)
+      Use your web search capabilities to compile a comprehensive answer to the following query. Use as many searches as possible.
+    PROMPT
+
+    @chat.ask(query).content
   rescue => e
-    "[✗ Search Error: #{e.message}]"
+    {error: e.message}
   end
 end
 
@@ -173,27 +193,11 @@ class Self < RubyLLM::Tool
   end
 end
 
-def find_prompt_file(name)
-  File.expand_path(".detritus/prompts/#{name}.txt", Dir.pwd)
-end
-
-def find_prompt_file(name)
-  local = File.expand_path(".detritus/prompts/#{name}.txt", Dir.pwd)
-  return local if File.exist?(local)
-
-  global = File.expand_path("~/.detritus/prompts/#{name}.txt")
-  File.exist?(global) ? global : nil
-end
-
-def build_prompt(prompt_name, args = "")
-  file = find_prompt_file(prompt_name)
-  return nil unless file
-
-  content = File.read(file)
-  content.gsub("{{ARGS}}", args)
-end
-
+# === REPL ===
 def handle_prompt(prompt)
+  prompt = prompt.strip
+  File.open($state.history_file, "a") { |f| f.puts prompt } # add message to history immediately
+
   case prompt
   when "/exit", "/quit"
     exit 0
@@ -202,12 +206,10 @@ def handle_prompt(prompt)
     $state.chat = create_chat
     puts "\n[✓ context cleared]"
   when %r{^/load\s+(\w+)\s*(.*)}
-    prompt = build_prompt($1, $2)
-    if prompt
-      puts "\n[✓ Loaded '#{$1}' prompt]"
-      handle_prompt(prompt)
-    end
-  when %r{^/resume\s+(\w+)}
+    $state.chat.add_message(role: :user, content: prompt) if (prompt = build_prompt($1, $2))
+    puts "[✓ #{$1} loaded]"
+  when %r{^/resume\s+(.+)}
+    $state.current_chat_id = $1
     $state.chat = load_chat($1) || $state.chat
   when %r{^/resume\z}
     puts Dir.glob(".detritus/chats/*").map { |f| File.basename(f, "") }
@@ -216,31 +218,56 @@ def handle_prompt(prompt)
   when %r{^!(.+)\z}m
     puts(out = `#{$1}`)
     $state.chat.add_message(role: :user, content: "#{$1}\n\n#{out}")
-  when %r{^/model\s+(\w+)}
-    $state.model = $1
+  when %r{^/model\s+([^/]+)/(.+)}
+    $state.provider = $1
+    $state.model = $2
     $state.chat.with_model($state.model, provider: $state.provider)
     puts "[✓ Switched to #{$state.provider}/#{$state.model}]"
   when %r{^/(\w+)\s*(.*)}
-    $state.chat.ask(prompt) if (prompt = build_prompt($1, $2))
+    rendered_prompt = build_prompt($1, $2)
+    if rendered_prompt
+      $state.chat.ask(rendered_prompt) do |chunk|
+        $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
+        print chunk.content if chunk.content&.strip
+      end
+    end
   else
     $state.chat.ask(prompt) do |chunk|
-      print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
+      $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
       print chunk.content if chunk.content&.strip
     end
-    puts
   end
 end
 
-# === Configuration ===
 def configure
-  $state.model = ENV["DETRITUS_MODEL"] || "gemini-2.0-flash"
-  $state.provider = ENV["DETRITUS_PROVIDER"] || "gemini"
+  # === Configuration (global config combined with local project config) ===
+  global_config = File.exist?(File.expand_path("~/.detritus/config.yml")) ? YAML.load_file(File.expand_path("~/.detritus/config.yml")) : {}
+  local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
+  $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
+  $state.instructions = File.read(find_prompt_file("system.txt"))
+    .sub("%%{Dir.pwd}%%", Dir.pwd)
+    .sub("%%{available_prompts}%%", available_prompts)
+    .sub("%%{available_scripts}%%", available_scripts)
 
-  RubyLLM.configure do |config|
-    config.gemini_api_key = ENV["GEMINI_API_KEY"]
-    config.anthropic_api_key = ENV["ANTHROPIC_API_KEY"]
-    config.openai_api_key = ENV["OPENAI_API_KEY"]
-    config.ollama_url = ENV["OLLAMA_URL"] || "http://localhost:11434"
+  # === RubyLLM configuration ===
+  RubyLLM.configure do |c|
+    c.request_timeout = 600
+    case $state.provider
+    when "anthropic" then c.anthropic_api_key = $state.api_key || ENV["ANTHROPIC_API_KEY"]
+    when "ollama" then c.ollama_api_base = $state.api_base || "http://localhost:11434/v1"
+    when "openai"
+      c.openai_api_key = $state.api_key || ENV["OPENAI_API_KEY"] || "not-needed"
+      c.openai_api_base = $state.api_base if $state.api_base
+    end
+    # Always configure Gemini for WebSearch tool
+    c.gemini_api_key = ($state.provider == "gemini" && $state.api_key) ? $state.api_key : ENV["GEMINI_API_KEY"]
+  end
+
+  # === Readline History ====
+  $state.history_file = File.expand_path(".detritus/history")
+  FileUtils.mkdir_p(File.dirname($state.history_file))
+  if File.exist?($state.history_file)
+    File.readlines($state.history_file).each { |line| Reline::HISTORY << line.chomp }
   end
 
   # === Chat initialization & loading ===
@@ -252,23 +279,19 @@ def configure
 end
 
 configure
-$state.history_file = File.expand_path("~/.detritus_history")
+return if ENV["DETRITUS_TEST"]
 
-if ARGV.any?
+if ARGV.first ## non-interactive mode
   handle_prompt(ARGV.join(" "))
 else
-  puts "\nDetritus #{$state.provider}/#{$state.model} (RubyLLM #{RubyLLM::VERSION})"
-  puts "Type /exit to quit, /new for fresh context, /help for commands\n\n"
-
-  while input = Readline.readline("[#{available_scripts.size}]> ", true)
-    begin
-      break if input.nil?
-      input = input.strip
-      break if input == "/exit"
-      next if input.empty?
-
-      handle_prompt(input)
-    rescue Interrupt
+  loop do # Interactive REPL
+    input = Reline.readline("> ", true)
+    if input.nil? # Ctrl+D to exit
+      puts "[✓ Bye!]"
+      break
     end
+    next if input.empty?
+    handle_prompt(input)
+  rescue Interrupt
   end
 end
