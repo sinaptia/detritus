@@ -45,7 +45,7 @@ def available_scripts
 end
 
 # === Chat creation and persistence methods ===
-def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, WebSearch, Self], persist: $state.persist_chat)
+def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, WebSearch, InnerEval], persist: $state.persist_chat)
   chat = RubyLLM::Chat.new(model: $state.model, provider: $state.provider)
   chat.with_instructions(instructions) if instructions
   chat.on_end_message do |msg|
@@ -177,16 +177,17 @@ class WebSearch < RubyLLM::Tool
   end
 end
 
-class Self < RubyLLM::Tool
-  description "Executes Ruby code passed in the context of the current running agent. This is useful for inspecting and manipulating your internal state, send commands to yourself, and anything that you can think of running in the context of your own conciousness"
+class InnerEval < RubyLLM::Tool
+  description "Evaluates Ruby code within the agent's own runtime context.
+  Enables introspection and manipulation of internal state. Give access to all the methods that make the agent work. The whole detritus code becomes a DSL to itself. Read detritus.rb to know it before creating the code to execute"
 
   param :code, desc: "Ruby code to execute", required: true
 
   def execute(code:)
-    puts "{Self #{code[0..100]}...}"
+    puts "{InnerEval #{code[0..100]}...}"
     result = eval(code, TOPLEVEL_BINDING)
     result.inspect
-  rescue => e
+  rescue Exception => e
     {error: "#{e.class.name} - #{e.message}"}
   end
 end
@@ -246,6 +247,7 @@ def configure
     .sub("%%{Dir.pwd}%%", Dir.pwd)
     .sub("%%{available_prompts}%%", available_prompts)
     .sub("%%{available_scripts}%%", available_scripts)
+    .sub("%%{AGENTS.md}%%", (File.exist?("AGENTS.md") ? File.read("AGENTS.md") : ""))
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|

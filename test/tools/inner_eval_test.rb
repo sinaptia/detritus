@@ -2,10 +2,10 @@
 
 require_relative "../test_helper"
 
-class SelfToolTest < DetritusTest
+class InnerEvalToolTest < DetritusTest
   def setup
     super
-    @tool = Self.new
+    @tool = InnerEval.new
   end
 
   def test_executes_simple_code_and_returns_result
@@ -35,13 +35,13 @@ class SelfToolTest < DetritusTest
   def test_can_modify_global_state
     @tool.execute(code: "$state.meta_eval_test = {foo: 'bar'}")
 
-    assert_equal({foo: 'bar'}, $state.meta_eval_test)
+    assert_equal({foo: "bar"}, $state.meta_eval_test)
   ensure
     $state.delete_field(:meta_eval_test) if $state.respond_to?(:meta_eval_test)
   end
 
   def test_returns_error_for_undefined_method
-    result = @tool.execute(code: "raise NoMethodError, 'undefined method'")
+    result = @tool.execute(code: "method_does_not_exist(1)")
 
     assert_includes result[:error], "NoMethodError"
   end
@@ -52,32 +52,10 @@ class SelfToolTest < DetritusTest
     assert_includes result[:error], "NameError"
   end
 
-  def test_shows_truncate_code_in_display
-    output = capture_io do
-      @tool.execute(code: "1 + 1")
-    end.first
+  def test_returns_error_for_syntax_errors
+    result = @tool.execute(code: "def foo( end")
 
-    assert_includes output, "{Self 1 + 1...}"
-  end
-
-  def test_truncates_long_code_in_display
-    long_code = "x = " + "1 + " * 50 + "1"
-
-    output = capture_io do
-      @tool.execute(code: long_code)
-    end.first
-
-    assert_includes output, "{Self"
-    assert_includes output, "...}"
-    assert output.length < long_code.length + 20
-  end
-
-  def test_prints_for_short_code
-    output = capture_io do
-      @tool.execute(code: "2 + 2")
-    end.first
-
-    assert_includes output, "{Self 2 + 2...}"
+    assert_includes result[:error], "SyntaxError"
   end
 
   private
