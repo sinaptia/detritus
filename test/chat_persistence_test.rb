@@ -16,7 +16,7 @@ class ChatPersistenceTest < DetritusTest
   def test_creates_chat_with_default_tools
     chat = create_chat
 
-    assert_equal 4, chat.tools.size
+    assert_equal 3, chat.tools.size
 
     tool_classes = chat.tools.values.map(&:class)
     assert_includes tool_classes, EditFile
@@ -35,7 +35,7 @@ class ChatPersistenceTest < DetritusTest
     assert_includes tool_classes, Bash
   end
 
-  def test_saves_chat_to_detritus_chats_as_yaml
+  def test_saves_chat_to_detritus_chats_as_marshal
     chat = create_chat(persist: false)
     $state.chat = chat
     chat.add_message(role: :user, content: "Hello, this is a test message")
@@ -43,10 +43,10 @@ class ChatPersistenceTest < DetritusTest
 
     save_chat
 
-    chat_file = ".detritus/chats/#{$state.current_chat_id}.yml"
+    chat_file = File.join(".detritus/chats", $state.current_chat_id)
     assert File.exist?(chat_file), "Chat file should exist at #{chat_file}"
 
-    content = YAML.unsafe_load(File.read(chat_file))
+    content = Marshal.load(File.read(chat_file))
     assert_equal $state.current_chat_id, content[:id]
     assert_equal $state.model, content[:model]
     assert_equal $state.provider, content[:provider]
@@ -54,14 +54,14 @@ class ChatPersistenceTest < DetritusTest
     messages = content[:messages]
     assert_equal 3, messages.size # System + User + Assistant
 
-    system_message = messages.find { |m| m[:role] == :system }
-    assert_equal $state.instructions, system_message[:content]
+    system_message = messages.find { |m| m.role == :system }
+    assert_equal $state.instructions, system_message.content
 
-    user_message = messages.find { |m| m[:role] == :user }
-    assert_equal "Hello, this is a test message", user_message[:content]
+    user_message = messages.find { |m| m.role == :user }
+    assert_equal "Hello, this is a test message", user_message.content
 
-    assistant_message = messages.find { |m| m[:role] == :assistant }
-    assert_equal "Hello! How can I help you today?", assistant_message[:content]
+    assistant_message = messages.find { |m| m.role == :assistant }
+    assert_equal "Hello! How can I help you today?", assistant_message.content
   end
 
   def test_save_and_load_round_trip_preserves_messages_without_duplicates

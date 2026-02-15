@@ -78,7 +78,7 @@ class ReplTest < DetritusTest
         { role: :assistant, content: "Previous response" }
       ]
     }
-    File.write(".detritus/chats/#{chat_id}.yml", YAML.dump(chat_data))
+    File.write(".detritus/chats/#{chat_id}", Marshal.dump(chat_data))
 
     output = capture_io { handle_prompt("/resume #{chat_id}") }.first
     assert_includes output, "[✓ Chat loaded (2 messages)]"

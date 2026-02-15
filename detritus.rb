@@ -90,26 +90,24 @@ def save_chat
     id: $state.current_chat_id,
     model: $state.model,
     provider: $state.provider,
-    messages: $state.chat.messages.map(&:to_h)
+    messages: $state.chat.messages
   }
-
-  File.write(".detritus/chats/#{$state.current_chat_id}.yml", YAML.dump(data))
+  FileUtils.mkdir_p(".detritus/chats")
+  File.write(".detritus/chats/#{$state.current_chat_id}", Marshal.dump(data))
 end
 
 def load_chat(id)
-  file = ".detritus/chats/#{id}.yml"
+  file = ".detritus/chats/#{id}"
   return nil unless File.exist?(file)
 
-  data = YAML.unsafe_load(File.read(file))
-  create_chat(instructions: nil).tap do |chat|
-    data[:messages].each do |message|
-      message[:tool_calls]&.transform_values! { |tc| RubyLLM::ToolCall.new(**tc) }
-      chat.add_message(RubyLLM::Message.new(message))
-    end
+  data = Marshal.load(File.read(file))
+  create_chat(instructions: nil, persist: false).tap do |chat|
+    data[:messages].each { |msg| chat.add_message(msg) }
     puts "[✓ Chat loaded (#{data[:messages].size} messages)]"
   end
 rescue => e
-  puts "[✗ Failed to load chat: #{e.message}]"
+  puts "[✗ failed to load chat: #{e.message}]"
+  nil
 end
 
 # ===  Tools ===
