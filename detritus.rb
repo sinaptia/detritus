@@ -180,9 +180,7 @@ end
 class Self < RubyLLM::Tool
   description "Executes Ruby code passed in the context of the current running agent. This is useful for inspecting and manipulating your internal state, send commands to yourself, and anything that you can think of running in the context of your own conciousness"
 
-  param :code,
-    desc: "Ruby code to execute",
-    required: true
+  param :code, desc: "Ruby code to execute", required: true
 
   def execute(code:)
     puts "{Self #{code[0..100]}...}"
