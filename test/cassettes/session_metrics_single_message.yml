@@ -19,7 +19,7 @@ http_interactions:
         search query"}},"required":["query"],"additionalProperties":false,"strict":true}}}]}'
     headers:
       User-Agent:
-      - Faraday v2.14.1
+      - Faraday v2.14.0
       Content-Type:
       - application/json
       Accept-Encoding:
@@ -34,12 +34,12 @@ http_interactions:
       Content-Type:
       - application/json
       Date:
-      - Sat, 14 Feb 2026 22:09:47 GMT
+      - Sun, 15 Feb 2026 02:12:43 GMT
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        eyJpZCI6ImNoYXRjbXBsLTQ3OCIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3NzExMDY5ODgsIm1vZGVsIjoia2ltaS1rMi41OmNsb3VkIiwic3lzdGVtX2ZpbmdlcnByaW50IjoiZnBfb2xsYW1hIiwiY2hvaWNlcyI6W3siaW5kZXgiOjAsIm1lc3NhZ2UiOnsicm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOiIgSGkgdGhlcmUhIPCfkYsiLCJyZWFzb25pbmciOiIgVGhlIHVzZXIgd2FudHMgbWUgdG8gc2F5IGhpIGJyaWVmbHkuIEkgY2FuIGp1c3QgcmVzcG9uZCB3aXRoIGEgYnJpZWYgZ3JlZXRpbmcuIn0sImZpbmlzaF9yZWFzb24iOiJzdG9wIn1dLCJ1c2FnZSI6eyJwcm9tcHRfdG9rZW5zIjoyMTQsImNvbXBsZXRpb25fdG9rZW5zIjoyNSwidG90YWxfdG9rZW5zIjoyMzl9fQo=
-  recorded_at: Sat, 14 Feb 2026 22:09:47 GMT
+        eyJpZCI6ImNoYXRjbXBsLTM1NSIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3NzExMjE1NjIsIm1vZGVsIjoia2ltaS1rMi41OmNsb3VkIiwic3lzdGVtX2ZpbmdlcnByaW50IjoiZnBfb2xsYW1hIiwiY2hvaWNlcyI6W3siaW5kZXgiOjAsIm1lc3NhZ2UiOnsicm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOiJIZWxsbyEg8J+RiyIsInJlYXNvbmluZyI6IlRoZSB1c2VyIGlzIGFza2luZyBtZSB0byBzYXkgaGkgYnJpZWZseS4gVGhpcyBpcyBhIHNpbXBsZSByZXF1ZXN0IHRoYXQgZG9lc24ndCByZXF1aXJlIGFueSB0b29scy4gSSBzaG91bGQganVzdCByZXNwb25kIHdpdGggYSBicmllZiBncmVldGluZy4ifSwiZmluaXNoX3JlYXNvbiI6InN0b3AifV0sInVzYWdlIjp7InByb21wdF90b2tlbnMiOjIxNCwiY29tcGxldGlvbl90b2tlbnMiOjM2LCJ0b3RhbF90b2tlbnMiOjI1MH19Cg==
+  recorded_at: Sun, 15 Feb 2026 02:12:43 GMT
 recorded_with: VCR 6.4.0

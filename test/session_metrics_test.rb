@@ -20,7 +20,6 @@ class SessionMetricsTest < DetritusTest
 
   def test_session_initializes_with_zero_metrics
     reset_session
-    pp $state.chat
     assert_equal 0, $state.session[:messages]
     assert_equal 0, $state.session[:tokens_in]
     assert_equal 0, $state.session[:tokens_out]
