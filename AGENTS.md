@@ -18,6 +18,19 @@ It's a single-file application (`detritus.rb`) that provides an interactive REPL
 * Flexible - easy to prototype and modify
 * Maximize line of code / power ratio
 
+### Commit Conventions
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) format for all commits:
+
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `refactor:` - Code restructuring
+- `docs:` - Documentation updates
+- `test:` - Test changes
+- `chore:` - Maintenance tasks
+
+Format: `<type>: <description>` (lowercase, no period at end)
+
 
 ### Testing Philosophy
 
