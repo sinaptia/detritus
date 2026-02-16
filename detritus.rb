@@ -121,8 +121,9 @@ class EditFile < RubyLLM::Tool
 
     puts "\n{FileEdit path: #{path}}"
     FileUtils.touch(path) if create
-    if (content = File.read(path).sub!(old, new))
-      File.write(path, content)
+    content = File.read(path)
+    if content.include?(old)
+      File.write(path, content.sub(old, new))
       "ok"
     else
       {error: "<old> text not found in file. You might need to re-read the file"}
