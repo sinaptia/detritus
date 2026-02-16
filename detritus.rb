@@ -66,30 +66,14 @@ def track_metrics(msg)
 end
 
 def estimate_cost(input_tokens, output_tokens)
-  model_info = begin
-    RubyLLM.models.find($state.model)
-  rescue
-    nil
-  end
+  model_info = RubyLLM.models.find($state.model) rescue nil
   return 0.0 unless model_info
-  input_cost = input_tokens * model_info.input_price_per_million.to_f / 1_000_000
-  output_cost = output_tokens * model_info.output_price_per_million.to_f / 1_000_000
-  input_cost + output_cost
+  input_tokens * model_info.input_price_per_million.to_f / 1_000_000 + output_tokens * model_info.output_price_per_million.to_f / 1_000_000
 end
 
 def session_status
-  <<~STATUS
-    ┌─ Session #{$state.current_chat_id} ─────────────────┐
-    │ Messages: #{$state.session[:messages].to_s.ljust(20)}│
-    │ Tokens In:  #{$state.session[:tokens_in].to_s.ljust(19)}│
-    │ Tokens Out: #{$state.session[:tokens_out].to_s.ljust(19)}│
-    │ Cache Hits: #{$state.session[:tokens_cached].to_s.ljust(19)}│
-    │ Tool Calls: #{$state.session[:tool_calls].to_s.ljust(19)}│
-    │ Est Cost:   $#{$state.session[:cost].round(6).to_s.ljust(17)}│
-    ├────────────────────────────────────────────────────────┤
-    │ Model: #{$state.provider}/#{$state.model.ljust(41 - ($state.provider.length + $state.model.length))}│
-    └────────────────────────────────────────────────────────┘
-  STATUS
+  s = $state.session
+  "Session #{$state.current_chat_id}\nMessages: #{s[:messages]}, Tokens: #{s[:tokens_in]}/#{s[:tokens_out]}, Cache: #{s[:tokens_cached]}, Tools: #{s[:tool_calls]}, Cost: $#{s[:cost].round(4)}\nModel: #{$state.provider}/#{$state.model}"
 end
 
 def reset_session
@@ -97,14 +81,8 @@ def reset_session
 end
 
 def save_chat
-  data = {
-    id: $state.current_chat_id,
-    model: $state.model,
-    provider: $state.provider,
-    messages: $state.chat.messages
-  }
   FileUtils.mkdir_p(".detritus/chats")
-  File.write(".detritus/chats/#{$state.current_chat_id}", Marshal.dump(data))
+  File.write(".detritus/chats/#{$state.current_chat_id}", Marshal.dump({id: $state.current_chat_id, model: $state.model, provider: $state.provider, messages: $state.chat.messages}))
 end
 
 def load_chat(id)
@@ -157,20 +135,14 @@ end
 
 class WebSearch < RubyLLM::Tool
   description "useful for searching the web"
-
-  param :query,
-    desc: "The search query",
-    required: true
+  param :query, desc: "The search query", required: true
 
   def execute(query:)
     puts "{WebSearch query: #{query}}"
 
     @chat = RubyLLM.chat(model: "gemini-2.5-flash")
     @chat.with_params(tools: [{google_search: {}}])
-    @chat.with_instructions(<<~PROMPT)
-      Use your web search capabilities to compile a comprehensive answer to the following query. Use as many searches as possible.
-    PROMPT
-
+    @chat.with_instructions("Use your web search capabilities to compile a comprehensive answer to the following query. Use as many searches as possible.")
     @chat.ask(query).content
   rescue => e
     {error: e.message}
@@ -178,9 +150,7 @@ class WebSearch < RubyLLM::Tool
 end
 
 class InnerEval < RubyLLM::Tool
-  description "Evaluates Ruby code within the agent's own runtime context.
-  Enables introspection and manipulation of internal state. Give access to all the methods that make the agent work. The whole detritus code becomes a DSL to itself. Read detritus.rb to know it before creating the code to execute"
-
+  description "Evaluates Ruby code within the agent's own runtime context. Enables introspection and manipulation of internal state. Give access to all the methods that make the agent work. The whole detritus code becomes a DSL to itself. Read detritus.rb to know it before creating the code to execute"
   param :code, desc: "Ruby code to execute", required: true
 
   def execute(code:)
@@ -223,18 +193,16 @@ def handle_prompt(prompt)
     $state.chat.with_model($state.model, provider: $state.provider)
     puts "[✓ Switched to #{$state.provider}/#{$state.model}]"
   when %r{^/(\w+)\s*(.*)}
-    rendered_prompt = build_prompt($1, $2)
-    if rendered_prompt
-      $state.chat.ask(rendered_prompt) do |chunk|
-        $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
-        print chunk.content if chunk.content&.strip
-      end
-    end
+    (rendered_prompt = build_prompt($1, $2)) && stream_response(rendered_prompt)
   else
-    $state.chat.ask(prompt) do |chunk|
-      $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
-      print chunk.content if chunk.content&.strip
-    end
+    stream_response(prompt)
+  end
+end
+
+def stream_response(prompt)
+  $state.chat.ask(prompt) do |chunk|
+    $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
+    print chunk.content if chunk.content&.strip
   end
 end
 

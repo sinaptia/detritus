@@ -84,11 +84,10 @@ class SessionMetricsTest < DetritusTest
 
     output = capture_io { handle_prompt("/status") }.first
 
-    # Check that status shows session info and metrics
+    # Check that status shows session info and metrics (compact format)
     assert_includes output, "Session"
     assert_includes output, "Messages:"
-    assert_includes output, "Tokens In:"
-    assert_includes output, "Tokens Out:"
+    assert_includes output, "Tokens:"
     assert_includes output, "Model:"
   end
 
