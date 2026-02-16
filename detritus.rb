@@ -66,14 +66,22 @@ def track_metrics(msg)
 end
 
 def estimate_cost(input_tokens, output_tokens)
-  model_info = RubyLLM.models.find($state.model) rescue nil
-  return 0.0 unless model_info
+  model_info = RubyLLM.models.find($state.model)
   input_tokens * model_info.input_price_per_million.to_f / 1_000_000 + output_tokens * model_info.output_price_per_million.to_f / 1_000_000
+rescue RubyLLM::ModelNotFoundError
+  0.0
 end
 
 def session_status
   s = $state.session
   "Session #{$state.current_chat_id}\nMessages: #{s[:messages]}, Tokens: #{s[:tokens_in]}/#{s[:tokens_out]}, Cache: #{s[:tokens_cached]}, Tools: #{s[:tool_calls]}, Cost: $#{s[:cost].round(4)}\nModel: #{$state.provider}/#{$state.model}"
+end
+
+def status_line
+  model = $state.model
+  branch = `git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip
+  tokens = ($state.session[:tokens_in] + $state.session[:tokens_out]) / 1000
+  "[#{model} | #{branch} | #{tokens}k] ∂> "
 end
 
 def reset_session
@@ -253,7 +261,7 @@ if ARGV.first ## non-interactive mode
   handle_prompt(ARGV.join(" "))
 else
   loop do # Interactive REPL
-    input = Reline.readline("> ", true)
+    input = Reline.readline(status_line, true)
     if input.nil? # Ctrl+D to exit
       puts "[✓ Bye!]"
       break
