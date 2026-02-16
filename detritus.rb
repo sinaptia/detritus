@@ -115,7 +115,10 @@ class EditFile < RubyLLM::Tool
   param :new, required: true, desc: "The lines of text you want to use as replacement."
   param :create, type: :boolean, desc: "Optional flag to create the file if it doesn't exist."
 
-  def execute(path:, old:, new:, create: false)
+  def execute(path: nil, old: nil, new: nil, create: false)
+    missing = [(:path if path.nil?), (:old if old.nil?), (:new if new.nil?)].compact
+    return {error: "Missing required parameters: #{missing.join(', ')}"} if missing.any?
+
     puts "\n{FileEdit path: #{path}}"
     FileUtils.touch(path) if create
     if (content = File.read(path).sub!(old, new))
@@ -133,7 +136,8 @@ class Bash < RubyLLM::Tool
   description "Run shell command"
   param :command, desc: "Command"
 
-  def execute(command:)
+  def execute(command: nil)
+    return {error: "Missing required parameter: command"} if command.nil?
     puts "\n{Bash #{command[0..100]}...}"
     Bundler.with_unbundled_env { `#{command}` }
   rescue => e
@@ -145,7 +149,8 @@ class WebSearch < RubyLLM::Tool
   description "useful for searching the web"
   param :query, desc: "The search query", required: true
 
-  def execute(query:)
+  def execute(query: nil)
+    return {error: "Missing required parameter: query"} if query.nil?
     puts "{WebSearch query: #{query}}"
 
     @chat = RubyLLM.chat(model: "gemini-2.5-flash")
@@ -161,7 +166,8 @@ class InnerEval < RubyLLM::Tool
   description "Evaluates Ruby code within the agent's own runtime context. Enables introspection and manipulation of internal state. Give access to all the methods that make the agent work. The whole detritus code becomes a DSL to itself. Read detritus.rb to know it before creating the code to execute"
   param :code, desc: "Ruby code to execute", required: true
 
-  def execute(code:)
+  def execute(code: nil)
+    return {error: "Missing required parameter: code"} if code.nil?
     puts "{InnerEval #{code[0..100]}...}"
     result = eval(code, TOPLEVEL_BINDING)
     result.inspect
@@ -212,6 +218,8 @@ def stream_response(prompt)
     $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
     print chunk.content if chunk.content&.strip
   end
+rescue => e
+  puts "\n[✗ Unexpected error: #{e.class} - #{e.message}]"
 end
 
 def configure
@@ -228,6 +236,10 @@ def configure
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|
     c.request_timeout = 600
+    c.max_retries = 5
+    c.retry_interval = 1
+    c.retry_backoff_factor = 2
+    c.retry_interval_randomness = 0.5
     case $state.provider
     when "anthropic" then c.anthropic_api_key = $state.api_key || ENV["ANTHROPIC_API_KEY"]
     when "ollama" then c.ollama_api_base = $state.api_base || "http://localhost:11434/v1"
@@ -269,5 +281,8 @@ else
     next if input.empty?
     handle_prompt(input)
   rescue Interrupt
+    # Silently handle Ctrl+C
+  rescue => e
+    puts "\n[✗ Error: #{e.class} - #{e.message}]"
   end
 end
