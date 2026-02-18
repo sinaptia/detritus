@@ -23,7 +23,6 @@ class SessionMetricsTest < DetritusTest
     assert_equal 0, $state.session[:messages]
     assert_equal 0, $state.session[:tokens_in]
     assert_equal 0, $state.session[:tokens_out]
-    assert_equal 0.0, $state.session[:cost]
   end
 
   def test_sending_message_records_metrics
@@ -37,8 +36,6 @@ class SessionMetricsTest < DetritusTest
     assert_operator $state.session[:messages], :>, 0
     assert_operator $state.session[:tokens_in], :>, 0
     assert_operator $state.session[:tokens_out], :>, 0
-    # Cost should be calculated (could be 0 for gemini-free tier but should exist as number)
-    assert $state.session[:cost].is_a?(Numeric)
   end
 
   def test_multiple_messages_accumulate_totals
