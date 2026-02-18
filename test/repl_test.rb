@@ -66,8 +66,8 @@ class ReplTest < DetritusTest
     end
   end
 
-  def test_resume_id_loads_chat_successfully
-    # Create a chat file first
+  def test_resume_id_loads_state_successfully
+    # Create a state file first
     chat_id = "saved_chat_123"
     chat_data = {
       id: chat_id,
@@ -78,17 +78,19 @@ class ReplTest < DetritusTest
         { role: :assistant, content: "Previous response" }
       ]
     }
-    File.write(".detritus/chats/#{chat_id}", Marshal.dump(chat_data))
+    FileUtils.mkdir_p(".detritus/states")
+    File.write(".detritus/states/#{chat_id}", Marshal.dump(chat_data))
 
     output = capture_io { handle_prompt("/resume #{chat_id}") }.first
-    assert_includes output, "[✓ Chat loaded (2 messages)]"
+    assert_includes output, "[✓ State resumed: #{chat_id} (2 messages)]"
     assert_equal chat_id, $state.current_chat_id
   end
 
-  def test_resume_without_id_lists_chats_directory
-    # Create some chat files
-    File.write(File.join(".detritus/chats", "chat_001"), "[]")
-    File.write(File.join(".detritus/chats", "chat_002"), "[]")
+  def test_resume_without_id_lists_states_directory
+    # Create some state files
+    FileUtils.mkdir_p(".detritus/states")
+    File.write(File.join(".detritus/states", "chat_001"), "[]")
+    File.write(File.join(".detritus/states", "chat_002"), "[]")
 
     output = capture_io { handle_prompt("/resume") }.first
     assert_includes output, "chat_001"

@@ -50,7 +50,7 @@ def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, WebSe
   chat.with_instructions(instructions) if instructions
   chat.on_end_message do |msg|
     track_metrics(msg)
-    save_chat if persist
+    save_state if persist
   end
   chat.with_tools(*tools)
 end
@@ -62,19 +62,11 @@ def track_metrics(msg)
   $state.session[:tokens_cached] += msg.cached_tokens.to_i
   $state.session[:messages] += 1
   $state.session[:tool_calls] += 1 if msg.tool_call?
-  $state.session[:cost] += estimate_cost(msg.input_tokens.to_i, msg.output_tokens.to_i)
-end
-
-def estimate_cost(input_tokens, output_tokens)
-  model_info = RubyLLM.models.find($state.model)
-  input_tokens * model_info.input_price_per_million.to_f / 1_000_000 + output_tokens * model_info.output_price_per_million.to_f / 1_000_000
-rescue RubyLLM::ModelNotFoundError
-  0.0
 end
 
 def session_status
   s = $state.session
-  "Session #{$state.current_chat_id}\nMessages: #{s[:messages]}, Tokens: #{s[:tokens_in]}/#{s[:tokens_out]}, Cache: #{s[:tokens_cached]}, Tools: #{s[:tool_calls]}, Cost: $#{s[:cost].round(4)}\nModel: #{$state.provider}/#{$state.model}"
+  "Session #{$state.current_chat_id}\nMessages: #{s[:messages]}, Tokens: #{s[:tokens_in]}/#{s[:tokens_out]}, Cache: #{s[:tokens_cached]}, Tools: #{s[:tool_calls]}, Model: #{$state.provider}/#{$state.model}"
 end
 
 def status_line
@@ -85,25 +77,44 @@ def status_line
 end
 
 def reset_session
-  $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, tool_calls: 0, messages: 0, cost: 0.0}
+  $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, tool_calls: 0, messages: 0}
 end
 
-def save_chat
-  FileUtils.mkdir_p(".detritus/chats")
-  File.write(".detritus/chats/#{$state.current_chat_id}", Marshal.dump({id: $state.current_chat_id, model: $state.model, provider: $state.provider, messages: $state.chat.messages}))
+def save_state
+  FileUtils.mkdir_p(".detritus/states")
+  data = {
+    id: $state.current_chat_id,
+    model: $state.model,
+    provider: $state.provider,
+    messages: $state.chat.messages,
+    session: $state.session,
+    scratchpad: $state.scratchpad
+  }
+  File.write(".detritus/states/#{$state.current_chat_id}", Marshal.dump(data))
 end
 
-def load_chat(id)
-  file = ".detritus/chats/#{id}"
+def load_state(id)
+  file = ".detritus/states/#{id}"
+  # Fallback to old chats dir for backward compatibility
+  file = ".detritus/chats/#{id}" unless File.exist?(file)
   return nil unless File.exist?(file)
 
   data = Marshal.load(File.read(file))
+
+  # Restore session metrics if they exist
+  if data[:session]
+    $state.session = data[:session]
+    $state.model = data[:model]
+    $state.provider = data[:provider]
+    $state.scratchpad = data[:scratchpad]
+  end
+
   create_chat(instructions: nil, persist: false).tap do |chat|
     data[:messages].each { |msg| chat.add_message(msg) }
-    puts "[✓ Chat loaded (#{data[:messages].size} messages)]"
+    puts "[✓ State resumed: #{id} (#{data[:messages].size} messages)]"
   end
 rescue => e
-  puts "[✗ failed to load chat: #{e.message}]"
+  puts "[✗ failed to load state: #{e.message}]"
   nil
 end
 
@@ -117,13 +128,13 @@ class EditFile < RubyLLM::Tool
 
   def execute(path: nil, old: nil, new: nil, create: false)
     missing = [(:path if path.nil?), (:old if old.nil?), (:new if new.nil?)].compact
-    return {error: "Missing required parameters: #{missing.join(', ')}"} if missing.any?
+    return {error: "Missing required parameters: #{missing.join(", ")}"} if missing.any?
 
     puts "\n{FileEdit path: #{path}}"
+
     FileUtils.touch(path) if create
-    content = File.read(path)
-    if content.include?(old)
-      File.write(path, content.sub(old, new))
+    if (content = File.read(path).sub!(old, new))
+      File.write(path, content)
       "ok"
     else
       {error: "<old> text not found in file. You might need to re-read the file"}
@@ -137,7 +148,7 @@ class Bash < RubyLLM::Tool
   description "Run shell command"
   param :command, desc: "Command"
 
-  def execute(command: nil)
+  def execute(command: nil, **rest)
     return {error: "Missing required parameter: command"} if command.nil?
     puts "\n{Bash #{command[0..100]}...}"
     Bundler.with_unbundled_env { `#{command}` }
@@ -194,9 +205,10 @@ def handle_prompt(prompt)
     puts "[✓ #{$1} loaded]"
   when %r{^/resume\s+(.+)}
     $state.current_chat_id = $1
-    $state.chat = load_chat($1) || $state.chat
+    $state.chat = load_state($1) || $state.chat
   when %r{^/resume\z}
-    puts Dir.glob(".detritus/chats/*").map { |f| File.basename(f, "") }
+    puts Dir.glob(".detritus/states/*").map { |f| File.basename(f) }
+    puts Dir.glob(".detritus/chats/*").map { |f| File.basename(f) }
   when "/status"
     puts session_status
   when %r{^!(.+)\z}m
@@ -223,12 +235,14 @@ rescue => e
   puts "\n[✗ Unexpected error: #{e.class} - #{e.message}]"
 end
 
-def configure
+def configure(resume_id: nil)
   # === Configuration (global config combined with local project config) ===
   global_config = File.exist?(File.expand_path("~/.detritus/config.yml")) ? YAML.load_file(File.expand_path("~/.detritus/config.yml")) : {}
   local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
   $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
-  $state.instructions = File.read(find_prompt_file("system.txt"))
+
+  system_prompt_name = ENV["DETRITUS_SYSTEM_PROMPT"] || "system"
+  $state.instructions = File.read(find_prompt_file(system_prompt_name))
     .sub("%%{Dir.pwd}%%", Dir.pwd)
     .sub("%%{available_prompts}%%", available_prompts)
     .sub("%%{available_scripts}%%", available_scripts)
@@ -259,15 +273,28 @@ def configure
     File.readlines($state.history_file).each { |line| Reline::HISTORY << line.chomp }
   end
 
-  # === Chat initialization & loading ===
-  $state.persist_chat = !!ENV["DETRITUS_NO_PERSIST"]
-  FileUtils.mkdir_p(File.expand_path(".detritus/chats"))
-  $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
+  # === Initial State Setup ===
+  $state.persist_chat = !ENV["DETRITUS_NO_PERSIST"]
   reset_session
-  $state.chat = create_chat
+
+  if resume_id
+    $state.current_chat_id = resume_id
+    $state.chat = load_state(resume_id)
+  end
+
+  # Fallback if no resume_id or resume failed
+  unless $state.chat
+    $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
+    $state.chat = create_chat
+  end
 end
 
-configure
+# Check for resume flag in ARGV
+resume_idx = ARGV.find_index("--resume")
+resume_id = resume_idx ? ARGV.delete_at(resume_idx + 1) : nil
+ARGV.delete("--resume") if resume_idx
+
+configure(resume_id: resume_id)
 return if ENV["DETRITUS_TEST"]
 
 if ARGV.first ## non-interactive mode

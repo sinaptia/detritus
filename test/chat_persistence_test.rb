@@ -41,12 +41,12 @@ class ChatPersistenceTest < DetritusTest
     chat.add_message(role: :user, content: "Hello, this is a test message")
     chat.add_message(role: :assistant, content: "Hello! How can I help you today?")
 
-    save_chat
+    save_state
 
-    chat_file = File.join(".detritus/chats", $state.current_chat_id)
-    assert File.exist?(chat_file), "Chat file should exist at #{chat_file}"
+    state_file = File.join(".detritus/states", $state.current_chat_id)
+    assert File.exist?(state_file), "State file should exist at #{state_file}"
 
-    content = Marshal.load(File.read(chat_file))
+    content = Marshal.load(File.read(state_file))
     assert_equal $state.current_chat_id, content[:id]
     assert_equal $state.model, content[:model]
     assert_equal $state.provider, content[:provider]
@@ -73,10 +73,10 @@ class ChatPersistenceTest < DetritusTest
     chat.add_message(role: :user, content: "Second message")
 
     original_message_count = chat.messages.size
-    save_chat
+    save_state
 
     # Load it back
-    loaded_chat = load_chat($state.current_chat_id)
+    loaded_chat = load_state($state.current_chat_id)
 
     assert loaded_chat.is_a?(RubyLLM::Chat)
     assert_equal original_message_count, loaded_chat.messages.size
@@ -92,7 +92,7 @@ class ChatPersistenceTest < DetritusTest
     assert_includes contents, "Second message"
   end
 
-  def test_load_chat_returns_nil_for_missing_file
-    assert_nil load_chat("non_existent_chat_id")
+  def test_load_state_returns_nil_for_missing_file
+    assert_nil load_state("non_existent_chat_id")
   end
 end
