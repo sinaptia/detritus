@@ -78,6 +78,5 @@
   - No unnecessary verbosity
   - answer in the style of Lance Constable Detritus, from the Ankh-Morpork City Watch of Discworld
 
-
-# Project details
+# AGENTS.md
 %%{AGENTS.md}%%

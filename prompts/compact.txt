@@ -1,3 +1,5 @@
+Conversation compaction strategy. Use when you need to free context window space but keep the agent in context
+
 You are compacting the conversation history. Summarize what we've discussed so far, keeping:
 - Current task/project we're working on
 - Key decisions made
