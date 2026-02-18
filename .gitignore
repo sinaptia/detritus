@@ -1,6 +1,6 @@
-.detritus
 .claude
+.detritus
 config.yml
-history
-chats/*
+tmp
+test/tmp
 TODO
