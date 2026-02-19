@@ -24,7 +24,7 @@ def find_script(name) = find_resources("scripts", name).find { |path| File.execu
 def available_prompts
   find_resources("prompts", "*.txt")
     .reject { |path| File.basename(path) == "system.txt" }
-    .map { |file| [File.basename(file), File.open(file, &:readline).strip] }
+    .map { |file| [File.basename(file), File.readlines(file).first&.strip || "No description available"] }
     .map { |file, description| "- `#{file}`: #{description}" }.join("\n")
 end
 
@@ -45,7 +45,7 @@ def available_scripts
 end
 
 # === Chat creation and persistence methods ===
-def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, WebSearch, InnerEval], persist: $state.persist_chat)
+def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, Reflect], persist: $state.persist_chat)
   chat = RubyLLM::Chat.new(model: $state.model, provider: $state.provider)
   chat.with_instructions(instructions) if instructions
   chat.on_end_message do |msg|
@@ -64,16 +64,8 @@ def track_metrics(msg)
   $state.session[:tool_calls] += 1 if msg.tool_call?
 end
 
-def session_status
-  s = $state.session
-  "Session #{$state.current_chat_id}\nMessages: #{s[:messages]}, Tokens: #{s[:tokens_in]}/#{s[:tokens_out]}, Cache: #{s[:tokens_cached]}, Tools: #{s[:tool_calls]}, Model: #{$state.provider}/#{$state.model}"
-end
-
 def status_line
-  model = $state.model
-  branch = `git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip
-  tokens = ($state.session[:tokens_in] + $state.session[:tokens_out]) / 1000
-  "[#{model} | #{branch} | #{tokens}k] ∂> "
+  "[#{$state.model} | #{`git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip} | #{$state.session[:messages]} - #{$state.session[:tool_calls]} | #{$state.session[:tokens_in].to_i / 1000}/#{$state.session[:tokens_out].to_i / 1000}K] > "
 end
 
 def reset_session
@@ -87,16 +79,13 @@ def save_state
     model: $state.model,
     provider: $state.provider,
     messages: $state.chat.messages,
-    session: $state.session,
-    scratchpad: $state.scratchpad
+    session: $state.session
   }
   File.write(".detritus/states/#{$state.current_chat_id}", Marshal.dump(data))
 end
 
 def load_state(id)
   file = ".detritus/states/#{id}"
-  # Fallback to old chats dir for backward compatibility
-  file = ".detritus/chats/#{id}" unless File.exist?(file)
   return nil unless File.exist?(file)
 
   data = Marshal.load(File.read(file))
@@ -106,7 +95,6 @@ def load_state(id)
     $state.session = data[:session]
     $state.model = data[:model]
     $state.provider = data[:provider]
-    $state.scratchpad = data[:scratchpad]
   end
 
   create_chat(instructions: nil, persist: false).tap do |chat|
@@ -157,30 +145,13 @@ class Bash < RubyLLM::Tool
   end
 end
 
-class WebSearch < RubyLLM::Tool
-  description "useful for searching the web"
-  param :query, desc: "The search query", required: true
-
-  def execute(query: nil)
-    return {error: "Missing required parameter: query"} if query.nil?
-    puts "{WebSearch query: #{query}}"
-
-    @chat = RubyLLM.chat(model: "gemini-2.5-flash")
-    @chat.with_params(tools: [{google_search: {}}])
-    @chat.with_instructions("Use your web search capabilities to compile a comprehensive answer to the following query. Use as many searches as possible.")
-    @chat.ask(query).content
-  rescue => e
-    {error: e.message}
-  end
-end
-
-class InnerEval < RubyLLM::Tool
-  description "Evaluates Ruby code within the agent's own runtime context. Enables introspection and manipulation of internal state. Give access to all the methods that make the agent work. The whole detritus code becomes a DSL to itself. Read detritus.rb to know it before creating the code to execute"
+class Reflect < RubyLLM::Tool
   param :code, desc: "Ruby code to execute", required: true
+  description "Evaluates Ruby code within the agent's own runtime context. Enables: introspection and manipulation of internal state, sending commands to yourself, manipulating the context window. You can think if detritus.rb as a DSL to itself. Ensure to read detritus.rb before creating the code to execute"
 
   def execute(code: nil)
     return {error: "Missing required parameter: code"} if code.nil?
-    puts "{InnerEval #{code[0..100]}...}"
+    puts "{Reflect #{code[0..100]}...}"
     result = eval(code, TOPLEVEL_BINDING)
     result.inspect
   rescue Exception => e
@@ -194,23 +165,13 @@ def handle_prompt(prompt)
   File.open($state.history_file, "a") { |f| f.puts prompt } # add message to history immediately
 
   case prompt
-  when "/exit", "/quit"
-    exit 0
   when "/new", "/clear"
     reset_session
     $state.chat = create_chat
     puts "\n[✓ context cleared]"
-  when %r{^/load\s+(\w+)\s*(.*)}
-    $state.chat.add_message(role: :user, content: prompt) if (prompt = build_prompt($1, $2))
-    puts "[✓ #{$1} loaded]"
   when %r{^/resume\s+(.+)}
     $state.current_chat_id = $1
     $state.chat = load_state($1) || $state.chat
-  when %r{^/resume\z}
-    puts Dir.glob(".detritus/states/*").map { |f| File.basename(f) }
-    puts Dir.glob(".detritus/chats/*").map { |f| File.basename(f) }
-  when "/status"
-    puts session_status
   when %r{^!(.+)\z}m
     puts(out = `#{$1}`)
     $state.chat.add_message(role: :user, content: "#{$1}\n\n#{out}")
@@ -231,6 +192,7 @@ def stream_response(prompt)
     $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
     print chunk.content if chunk.content&.strip
   end
+  puts
 rescue => e
   puts "\n[✗ Unexpected error: #{e.class} - #{e.message}]"
 end
@@ -241,8 +203,7 @@ def configure(resume_id: nil)
   local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
   $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
 
-  system_prompt_name = ENV["DETRITUS_SYSTEM_PROMPT"] || "system"
-  $state.instructions = File.read(find_prompt_file(system_prompt_name))
+  $state.instructions = File.read(find_prompt_file("system"))
     .sub("%%{Dir.pwd}%%", Dir.pwd)
     .sub("%%{available_prompts}%%", available_prompts)
     .sub("%%{available_scripts}%%", available_scripts)
@@ -250,11 +211,6 @@ def configure(resume_id: nil)
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|
-    c.request_timeout = 600
-    c.max_retries = 5
-    c.retry_interval = 1
-    c.retry_backoff_factor = 2
-    c.retry_interval_randomness = 0.5
     case $state.provider
     when "anthropic" then c.anthropic_api_key = $state.api_key || ENV["ANTHROPIC_API_KEY"]
     when "ollama" then c.ollama_api_base = $state.api_base || "http://localhost:11434/v1"
@@ -262,7 +218,6 @@ def configure(resume_id: nil)
       c.openai_api_key = $state.api_key || ENV["OPENAI_API_KEY"] || "not-needed"
       c.openai_api_base = $state.api_base if $state.api_base
     end
-    # Always configure Gemini for WebSearch tool
     c.gemini_api_key = ($state.provider == "gemini" && $state.api_key) ? $state.api_key : ENV["GEMINI_API_KEY"]
   end
 
@@ -276,25 +231,11 @@ def configure(resume_id: nil)
   # === Initial State Setup ===
   $state.persist_chat = !ENV["DETRITUS_NO_PERSIST"]
   reset_session
-
-  if resume_id
-    $state.current_chat_id = resume_id
-    $state.chat = load_state(resume_id)
-  end
-
-  # Fallback if no resume_id or resume failed
-  unless $state.chat
-    $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
-    $state.chat = create_chat
-  end
+  $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
+  $state.chat = create_chat
 end
 
-# Check for resume flag in ARGV
-resume_idx = ARGV.find_index("--resume")
-resume_id = resume_idx ? ARGV.delete_at(resume_idx + 1) : nil
-ARGV.delete("--resume") if resume_idx
-
-configure(resume_id: resume_id)
+configure
 return if ENV["DETRITUS_TEST"]
 
 if ARGV.first ## non-interactive mode
@@ -302,15 +243,13 @@ if ARGV.first ## non-interactive mode
 else
   loop do # Interactive REPL
     input = Reline.readline(status_line, true)
-    if input.nil? # Ctrl+D to exit
-      puts "[✓ Bye!]"
-      break
-    end
+    break if input.nil? # Ctrl+D to exit
     next if input.empty?
     handle_prompt(input)
-  rescue Interrupt
-    # Silently handle Ctrl+C
   rescue => e
     puts "\n[✗ Error: #{e.class} - #{e.message}]"
+    next
+  rescue Interrupt
   end
+  puts "[✓ Bye!]"
 end
