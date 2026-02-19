@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# web-search: Search the web using Gemini's web search capability
+require "bundler/inline"
+
+gemfile do
+  source "https://rubygems.org"
+  gem "ruby_llm", "~> 1.11"
+end
+
+require "optparse"
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: web-search <query>"
+  opts.on("-h", "--help", "Show this help") {
+    puts opts
+    exit
+  }
+end
+
+parser.parse!
+
+if ARGV.empty?
+  puts parser
+  exit 1
+end
+
+query = ARGV.join(" ")
+
+RubyLLM.configure do |c|
+  c.gemini_api_key = ENV["GEMINI_API_KEY"]
+end
+
+chat = RubyLLM.chat(model: "gemini-2.0-flash")
+chat.with_params(tools: [{google_search: {}}])
+chat.with_instructions("Use your web search capabilities to provide comprehensive information. Include sources when relevant.")
+puts chat.ask(query).content
