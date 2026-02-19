@@ -1,2 +1,0 @@
-Acknowledge this message warmly: {{ARGS}}
-Respond with genuine troll enthusiasm about what was said.
