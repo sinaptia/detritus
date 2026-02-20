@@ -57,19 +57,24 @@ end
 
 def track_metrics(msg)
   return unless msg
-  $state.session[:tokens_in] += msg.input_tokens.to_i
-  $state.session[:tokens_out] += msg.output_tokens.to_i
-  $state.session[:tokens_cached] += msg.cached_tokens.to_i
+  $state.session[:tokens_in] = msg.input_tokens.to_i
+  $state.session[:tokens_out] = msg.output_tokens.to_i
+  $state.session[:tokens_cached] = msg.cached_tokens.to_i
+  $state.session[:accumulated_tokens_in] += msg.input_tokens.to_i
+  $state.session[:accumulated_tokens_out] += msg.output_tokens.to_i
   $state.session[:messages] += 1
   $state.session[:tool_calls] += 1 if msg.tool_call?
 end
 
 def status_line
-  "[#{$state.model} | #{`git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip} | #{$state.session[:messages]} - #{$state.session[:tool_calls]} | #{$state.session[:tokens_in].to_i / 1000}/#{$state.session[:tokens_out].to_i / 1000}K] > "
+  total = $state.chat.messages.sum { |msg| (msg.input_tokens || 0) + (msg.output_tokens || 0) }
+  current_in = ($state.session[:tokens_in].to_f / 1000).round(1)
+  current_out = ($state.session[:tokens_out].to_f / 1000).round(1)
+  "[#{$state.model} | #{`git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip} | #{$state.session[:messages]} - #{$state.session[:tool_calls]} | #{(total / 1000.0).round(1)}K (#{current_in}/#{current_out})] > "
 end
 
 def reset_session
-  $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, tool_calls: 0, messages: 0}
+  $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, accumulated_tokens_in: 0, accumulated_tokens_out: 0, tool_calls: 0, messages: 0}
 end
 
 def save_state
