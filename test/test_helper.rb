@@ -54,9 +54,13 @@ def create_test_dir
   timestamp = "#{Time.now.strftime("%F-%H-%M-%S")}-#{Time.now.nsec}-#{Process.pid}"
   dir = File.join(root, "test", "tmp", timestamp)
   FileUtils.mkdir_p(dir)
-  FileUtils.mkdir_p(File.join(dir, ".detritus", "prompts"))
+  FileUtils.mkdir_p(File.join(dir, ".detritus", "skills"))
   FileUtils.mkdir_p(File.join(dir, ".detritus", "scripts"))
   FileUtils.mkdir_p(File.join(dir, ".detritus", "chats"))
+  FileUtils.mkdir_p(File.join(dir, ".detritus", "skills", "system"))
+  # Create a basic system skill file for tests with all substitution markers
+  # Create a basic system skill file for tests with all substitution markers
+  File.write(File.join(dir, ".detritus", "skills", "system", "SKILL.md"), "---\nname: system\ndescription: System skill\n---\n\npwd:%%{Dir.pwd}%%\n%%{available_prompts}%%\n%%{available_scripts}%%\n")
   dir
 end
 
@@ -75,10 +79,20 @@ class DetritusTest < Minitest::Test
     FileUtils.rm_rf(@test_dir) if @test_dir && File.exist?(@test_dir)
   end
 
-  # Helper to create a test prompt file
-  def create_prompt(name, content)
-    path = File.join(@test_dir, ".detritus", "prompts", "#{name}.txt")
-    File.write(path, content)
+  # Helper to create a test skill file
+  def create_skill(name, content, frontmatter: {})
+    skill_dir = File.join(@test_dir, ".detritus", "skills", name)
+    FileUtils.mkdir_p(skill_dir)
+    path = File.join(skill_dir, "SKILL.md")
+    
+    # Build frontmatter YAML with string keys (safe_load doesn't handle symbols)
+    fm = frontmatter.transform_keys(&:to_s)
+    fm["name"] ||= name
+    fm_yaml = fm.to_yaml.strip
+    
+    # to_yaml already includes '---' header, so we wrap just the body
+    full_content = "#{fm_yaml}\n---\n\n#{content}"
+    File.write(path, full_content)
     path
   end
 
