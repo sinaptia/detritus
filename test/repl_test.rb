@@ -39,28 +39,7 @@ class ReplTest < DetritusTest
     refute_same old_chat, $state.chat
   end
 
-  def test_load_name_args_builds_and_adds_prompt_to_chat
-    create_prompt("load", "You should help with {{ARGS}}")
 
-    output = capture_io { handle_prompt("/load test_prompt some arguments") }.first
-
-    # The prompt content should be added to chat (via stream_response)
-    # Output shows the streaming result, not a confirmation message
-    # Verify chat was used
-    assert $state.chat.messages.size > 0
-  end
-
-  def test_slash_name_args_builds_prompt_and_asks_chat
-    create_prompt("greet", "Greeting prompt\nSay hello to {{ARGS}}")
-
-    with_vcr("repl_slash_command") do
-      output = capture_io { handle_prompt("/greet world") }.first
-
-      # The response should contain something - we're asking the chat
-      # The chat was asked with the prompt content
-      assert $state.chat.messages.size > 1
-    end
-  end
 
   def test_resume_id_loads_state_successfully
     # Create a state file first

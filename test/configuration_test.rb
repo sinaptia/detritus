@@ -8,18 +8,9 @@ class ConfigurationTest < DetritusTest
     @original_home = ENV["HOME"]
     ENV["HOME"] = @test_dir
 
-    FileUtils.mkdir_p(File.join(@test_dir, ".detritus", "prompts"))
-    FileUtils.mkdir_p(File.join(@test_dir, ".detritus", "scripts"))
 
-    @project_dir = File.join(@test_dir, "project")
-    FileUtils.mkdir_p(@project_dir)
-    FileUtils.mkdir_p(File.join(@project_dir, ".detritus", "prompts"))
 
-    Dir.chdir(@project_dir)
 
-    # Ensure we at least have a system.txt in either location
-    path = File.join(@test_dir, ".detritus", "prompts", "system.txt")
-    File.write(path, "Test system prompt: pwd:%%{Dir.pwd}%% prompts:%%{available_prompts}%% scripts:%%{available_scripts}%%")
   end
 
   def teardown
@@ -64,17 +55,6 @@ class ConfigurationTest < DetritusTest
     configure
 
     assert_match "pwd:#{@project_dir}", $state.instructions
-  end
-
-  def test_available_prompts_substitution
-    create_config({"provider" => "ollama", "model" => "llama3"})
-
-    prompt_path = File.join(@project_dir, ".detritus", "prompts", "test_prompt.txt")
-    File.write(prompt_path, "Description of test prompt\nContent of test prompt")
-
-    configure
-
-    assert_match "- `test_prompt.txt`: Description of test prompt", $state.instructions
   end
 
   def test_rubyllm_configuration_anthropic

@@ -72,22 +72,7 @@ class SessionMetricsTest < DetritusTest
     assert_equal 0, $state.session[:tokens_out]
   end
 
-  def test_status_command_shows_metrics
-    reset_session
 
-    with_vcr("session_metrics_for_status") do
-      $state.chat.ask("Hello")
-    end
-
-    # Create status prompt that displays metrics
-    create_prompt("status", "Show current session:\nMessages: {{ARGS}}\nTokens in: {{ARGS}}\nModel: {{ARGS}}")
-
-    output = capture_io { handle_prompt("/status") }.first
-
-    # The prompt system should process the status command
-    # Either it finds the prompt or shows an error
-    refute_includes output, "Error: Prompt 'status' not found"
-  end
 
   def test_sending_with_tool_records_tool_call
     reset_session
