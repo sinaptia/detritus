@@ -1,0 +1,228 @@
+#!/usr/bin/env ruby
+# task_tree - Simple hierarchical task manager
+# Usage:
+#   task_tree init <tasks-file>                  # Create empty task file
+#   task_tree add <tasks-file> <id> <content>    # Add task (derives parent from ID)
+#   task_tree status <tasks-file> <id> <status>  # Set status
+#   task_tree next <tasks-file>                  # Get next ready task
+#   task_tree list <tasks-file>                  # Show all tasks
+#
+# ID format: 1.2.3-descriptive-slug (parent is 1.2 derived from path)
+#            task-1-content (no dots = root task, no parent)
+
+require "yaml"
+require "fileutils"
+
+class TaskTree
+  STATUS_OPTIONS = %w[pending in_progress done blocked]
+
+  def initialize(args)
+    @args = args
+    @command = args[0]
+    @tasks_file = args[1]
+  end
+
+  def run
+    case @command
+    when "init" then init_file
+    when "add" then add_task
+    when "status", "set-status" then set_status
+    when "next" then next_task
+    when "list", "ls" then list_tasks
+    else
+      puts "Usage: task_tree [init|add|status|next|list] <tasks-file> [args...]"
+      puts ""
+      puts "Examples:"
+      puts "  task_tree init cool-stuff.yml"
+      puts "  task_tree add cool-stuff.yml 1-api-planning 'Design API endpoints'"
+      puts "  task_tree add cool-stuff.yml 1.1-migration 'Create database migration'"
+      puts "  task_tree add cool-stuff.yml 1.2-models 'Create models'"
+      puts "  task_tree status cool-stuff.yml 1.1-migration done"
+      puts "  task_tree next cool-stuff.yml"
+      puts "  task_tree list cool-stuff.yml"
+      exit 1
+    end
+  end
+
+  def with_yaml_lock
+    File.open(@tasks_file, "r+") do |f|
+      f.flock(File::LOCK_EX)
+      data = YAML.safe_load(f.read, aliases: true) || {"tasks" => {}}
+      result = yield data
+      f.rewind
+      f.write(YAML.dump(data))
+      f.flush
+      f.truncate(f.pos)
+      result
+    end
+  rescue Errno::ENOENT
+    puts "[✘] File not found: #{@tasks_file}"
+    puts "    Run: task_tree init #{@tasks_file}"
+    exit 1
+  end
+
+  # Extract parent path from task ID
+  # 1.2.3-slug -> parent is "1.2"
+  # 1.2-slug -> parent is "1"
+  # task-1-slug -> no parent (has no dots)
+  def derive_parent(task_id)
+    path = task_id.split("-").first  # "1.2.3"
+    return nil unless path.include?(".")  # No dots = root
+    parts = path.split(".")  # ["1", "2", "3"]
+    parts[0..-2].join(".")  # "1.2"
+  end
+
+  def extract_path(task_id)
+    task_id.split("-").first  # "1.2.3"
+  end
+
+  def add_task
+    if @args.size < 4
+      puts "Usage: task_tree add <tasks-file> <id> <content>"
+      exit 1
+    end
+
+    task_id = @args[2]
+    content = @args[3..-1].join(" ")
+
+    # Validate ID format: accepts both styles
+    # 1.2.3-slug  or  task-1-description
+    unless task_id.match?(/^(\d+(\.\d+)*|[a-z]+)-/)
+      puts "[✘] Invalid ID format: #{task_id}"
+      puts "    Use: 1-description, 1.2-subtask, task-1-item, etc"
+      exit 1
+    end
+
+    parent = derive_parent(task_id)
+    path = extract_path(task_id)
+    depth = path.split(".").size
+
+    with_yaml_lock do |data|
+      if data["tasks"].key?(task_id)
+        puts "[✘] Task already exists: #{task_id}"
+        exit 1
+      end
+
+      data["tasks"][task_id] = {
+        "id" => task_id,
+        "path" => path,
+        "parent" => parent,
+        "depth" => depth,
+        "status" => "pending",
+        "content" => content,
+        "created_at" => Time.now.to_s
+      }
+    end
+
+    parent_info = parent ? "(parent: #{parent})" : "(root)"
+    puts "[+] #{task_id} #{parent_info}: #{content[0..50]}"
+  end
+
+  def set_status
+    if @args.size != 4
+      puts "Usage: task_tree status <tasks-file> <id> <status>"
+      exit 1
+    end
+
+    task_id = @args[2]
+    new_status = @args[3]
+
+    unless STATUS_OPTIONS.include?(new_status)
+      puts "[✘] Invalid status: #{new_status}"
+      puts "    Valid: #{STATUS_OPTIONS.join(", ")}"
+      exit 1
+    end
+
+    with_yaml_lock do |data|
+      unless data["tasks"].key?(task_id)
+        puts "[✘] Task not found: #{task_id}"
+        exit 1
+      end
+
+      data["tasks"][task_id]["status"] = new_status
+      data["tasks"][task_id]["updated_at"] = Time.now.to_s
+    end
+
+    puts "[✓] #{task_id} -> #{new_status}"
+  end
+
+  def next_task
+    unless File.exist?(@tasks_file)
+      puts "task tree file not found tasks_file"
+      exit 1
+    end
+
+    data = YAML.load_file(@tasks_file) || {"tasks" => {}}
+    tasks = data["tasks"]
+
+    # Build path -> task lookup for parent checking
+    tasks_by_path = tasks.values.group_by { |t| t["path"] }.transform_values(&:first)
+
+    candidates = tasks.values.select do |t|
+      next false unless t["status"] == "pending"
+
+      if t["parent"].nil?
+        true  # Root tasks are always eligible
+      else
+        # Parent must be done
+        parent = tasks_by_path[t["parent"]]
+        parent && parent["status"] == "done"
+      end
+    end
+
+    # Sort by depth (shallow first), then by path
+    next_ready = candidates.sort_by { |t| [t["depth"], t["path"].split(".").map(&:to_i)] }.first
+
+    if next_ready
+      puts next_ready["id"]
+    else
+      puts "<NO_TASK_READY>"
+    end
+  end
+
+  def list_tasks
+    unless File.exist?(@tasks_file)
+      puts "[✘] File not found: #{@tasks_file}"
+      exit 1
+    end
+
+    data = YAML.load_file(@tasks_file) || {"tasks" => {}}
+    # Natural sort: split by dots, convert parts to integers for proper numeric ordering
+    tasks = data["tasks"].values.sort_by { |t| t["path"].split(".").map(&:to_i) }
+
+    count = {"pending" => 0, "in_progress" => 0, "done" => 0, "blocked" => 0}
+    tasks.each { |t| count[t["status"]] += 1 }
+
+    puts ""
+    puts "  Tasks: #{count["pending"]} pending, #{count["in_progress"]} doing, #{count["done"]} done"
+    puts "  File: #{@tasks_file}"
+    puts "  " + "-" * 50
+
+    tasks.each do |t|
+      icon = case t["status"]
+      when "done" then "[✓]"
+      when "in_progress" then "[→]"
+      when "blocked" then "[!]"
+      else "[ ]"
+      end
+      indent = "  " * ((t["depth"] || 1) - 1)
+      puts "  #{icon}#{indent}#{t["id"]}"
+      puts "       #{indent}#{t["content"][0..60]}" if t["content"]
+    end
+    puts ""
+  end
+
+  def init_file
+    dir = File.dirname(@tasks_file)
+    FileUtils.mkdir_p(dir) unless dir == "."
+
+    File.write(@tasks_file, YAML.dump({
+      "created_at" => Time.now.to_s,
+      "tasks" => {}
+    }))
+
+    puts "[+] Created: #{@tasks_file}"
+  end
+end
+
+TaskTree.new(ARGV).run if __FILE__ == $0

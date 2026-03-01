@@ -1,0 +1,159 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"Say
+        ''Hello from greet skill''"}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"The
+        path to the file you want to edit."},"old":{"type":"STRING","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"load_skill","description":"Loads
+        a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade:
+        local .detritus/skills/ takes precedence over global ~/.detritus/skills/.
+        The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2,
+        etc (positional args).","parameters":{"type":"OBJECT","properties":{"name":{"type":"STRING","description":"Name
+        of the skill to load (e.g., ''research'', ''todo'')"},"arguments":{"type":"STRING","description":"Arguments
+        for interpolation, space-separated (e.g., ''arg1 arg2'')"}},"required":["name","arguments"]}},{"name":"reflect","description":"Evaluates
+        Ruby code within the agent''s own runtime context. Enables: introspection
+        and manipulation of internal state, sending commands to yourself, manipulating
+        the context window. You can think if detritus.rb as a DSL to itself. Ensure
+        to read detritus.rb before creating the code to execute","parameters":{"type":"OBJECT","properties":{"code":{"type":"STRING","description":"Ruby
+        code to execute"}},"required":["code"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/event-stream
+      Content-Disposition:
+      - attachment
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Thu, 26 Feb 2026 17:07:28 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=1730
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"load_skill\",\"args\": {\"name\": \"greet\",\"arguments\": \"\"}},\"thoughtSignature\":
+        \"CiQBvj72+09ae8F4k9E5ycDvP6Jp8Pg45mvUFTUbmURsP+bZpJYKXwG+Pvb78CseCMRbA/ids2HCWDmKqoM0zIguY0M5Z9/0S96kNxxJLB2n+KjVP2cVr7NfVOd8R+Fi1LfLOgTbPKOTq90Pv5xbaDEJhfjvF4uklBkqH9MJ70rntw9i8/QnCsUBAb4+9vtoKpcdxZpsJBQ2kWT9++8QCtQnBAL6znuF/F5QGOFhgsOCToE3yNalZkMFATEMAhfshNJTuui6hvc8OS8FCbhTSyVGiqltO7vRGozDA1wcEcJF4+ubfh23kpSDCGinU9NlDXkbzsTaAH0BrhBn9qavat1gMYo9iafV7vlKMtd1DB87x4dxv2bXyg8ACXM8WUZqTpgFRbC1ouG7h1siG8tNQdmKLMZhGGMjlO1qSEysujMT8hLytBpvLwNM3EmUFKU=\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
+        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
+        425,\"candidatesTokenCount\": 18,\"totalTokenCount\": 498,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 425}],\"thoughtsTokenCount\": 55},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"z32gaYHYL9S9qtsPrMaj8Aw\"}\r\n\r\n"
+  recorded_at: Thu, 26 Feb 2026 17:07:28 GMT
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"Say
+        ''Hello from greet skill''"}]},{"role":"model","parts":[{"functionCall":{"name":"load_skill","args":{"name":"greet","arguments":""}},"thoughtSignature":"CiQBvj72+09ae8F4k9E5ycDvP6Jp8Pg45mvUFTUbmURsP+bZpJYKXwG+Pvb78CseCMRbA/ids2HCWDmKqoM0zIguY0M5Z9/0S96kNxxJLB2n+KjVP2cVr7NfVOd8R+Fi1LfLOgTbPKOTq90Pv5xbaDEJhfjvF4uklBkqH9MJ70rntw9i8/QnCsUBAb4+9vtoKpcdxZpsJBQ2kWT9++8QCtQnBAL6znuF/F5QGOFhgsOCToE3yNalZkMFATEMAhfshNJTuui6hvc8OS8FCbhTSyVGiqltO7vRGozDA1wcEcJF4+ubfh23kpSDCGinU9NlDXkbzsTaAH0BrhBn9qavat1gMYo9iafV7vlKMtd1DB87x4dxv2bXyg8ACXM8WUZqTpgFRbC1ouG7h1siG8tNQdmKLMZhGGMjlO1qSEysujMT8hLytBpvLwNM3EmUFKU="}]},{"role":"function","parts":[{"functionResponse":{"name":"load_skill","response":{"name":"load_skill","content":[{"text":"Say
+        ''Hello from greet skill''"}]}}}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"The
+        path to the file you want to edit."},"old":{"type":"STRING","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"load_skill","description":"Loads
+        a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade:
+        local .detritus/skills/ takes precedence over global ~/.detritus/skills/.
+        The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2,
+        etc (positional args).","parameters":{"type":"OBJECT","properties":{"name":{"type":"STRING","description":"Name
+        of the skill to load (e.g., ''research'', ''todo'')"},"arguments":{"type":"STRING","description":"Arguments
+        for interpolation, space-separated (e.g., ''arg1 arg2'')"}},"required":["name","arguments"]}},{"name":"reflect","description":"Evaluates
+        Ruby code within the agent''s own runtime context. Enables: introspection
+        and manipulation of internal state, sending commands to yourself, manipulating
+        the context window. You can think if detritus.rb as a DSL to itself. Ensure
+        to read detritus.rb before creating the code to execute","parameters":{"type":"OBJECT","properties":{"code":{"type":"STRING","description":"Ruby
+        code to execute"}},"required":["code"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/event-stream
+      Content-Disposition:
+      - attachment
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Thu, 26 Feb 2026 17:07:30 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=1400
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 531,\"candidatesTokenCount\":
+        1,\"totalTokenCount\": 532,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        531}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"0X2gaaeRJ9q5mtkP0uGpwA0\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \" from greet skill\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        531,\"candidatesTokenCount\": 4,\"totalTokenCount\": 535,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 531}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"0X2gaaeRJ9q5mtkP0uGpwA0\"}\r\n\r\n"
+  recorded_at: Thu, 26 Feb 2026 17:07:30 GMT
+recorded_with: VCR 6.4.0

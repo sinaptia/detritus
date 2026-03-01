@@ -1,0 +1,78 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are a helpful assistant."}]},{"role":"user","parts":[{"text":"Respond
+        with exactly: SKILL_WAS_CALLED"}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"The
+        path to the file you want to edit."},"old":{"type":"STRING","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"load_skill","description":"Loads
+        a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade:
+        local .detritus/skills/ takes precedence over global ~/.detritus/skills/.
+        The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2,
+        etc (positional args).","parameters":{"type":"OBJECT","properties":{"name":{"type":"STRING","description":"Name
+        of the skill to load (e.g., ''research'', ''todo'')"},"arguments":{"type":"STRING","description":"Arguments
+        for interpolation, space-separated (e.g., ''arg1 arg2'')"}},"required":["name","arguments"]}},{"name":"reflect","description":"Evaluates
+        Ruby code within the agent''s own runtime context. Enables: introspection
+        and manipulation of internal state, sending commands to yourself, manipulating
+        the context window. You can think if detritus.rb as a DSL to itself. Ensure
+        to read detritus.rb before creating the code to execute","parameters":{"type":"OBJECT","properties":{"code":{"type":"STRING","description":"Ruby
+        code to execute"}},"required":["code"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      X-Goog-Api-Key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/event-stream
+      Content-Disposition:
+      - attachment
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Thu, 26 Feb 2026 17:07:26 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=1377
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"SKILL_WAS_CALLED\",\"thoughtSignature\":
+        \"CiQBvj72+9tbpixjjkD0mLULZTlYURnL3Apq+xWn9DHkJ+fO7lEKWgG+Pvb7tJkgx16RCsdMkBwp9z2FhzwpBMdGt0uuR7Yg1PoPhUZvkcHJHeWZrxvgcxASlXJhvWxI0Q42Utq7fhD/jXptSqYbDQYB76F+7Y3ZqpteQMd1ZyCnHgpCAb4+9vsd/tYv4+701/kQj6kXcALGZeR/Rz88DEnhV111puoeMAIemvOahEQWi2XRMzvU7zXMt60fi1O2SojZThkb\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        429,\"candidatesTokenCount\": 7,\"totalTokenCount\": 464,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 429}],\"thoughtsTokenCount\": 28},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"zX2gaciuL47Fz7IPzOXxiAc\"}\r\n\r\n"
+  recorded_at: Thu, 26 Feb 2026 17:07:26 GMT
+recorded_with: VCR 6.4.0

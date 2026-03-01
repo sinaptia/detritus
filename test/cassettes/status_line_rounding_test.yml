@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:11434/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"kimi-k2.5:cloud","messages":[{"role":"system","content":"You
+        are a helpful assistant."},{"role":"user","content":"Count to 5"}],"stream":false,"tools":[{"type":"function","function":{"name":"edit_file","description":"Changes
+        a specific block of text in a file. To avoid mistakes, the `old` block must
+        appear exactly once in the file.","parameters":{"type":"object","properties":{"path":{"type":"string","description":"The
+        path to the file you want to edit."},"old":{"type":"string","description":"The
+        EXACT lines of text you want to replace. If it appears multiple times, include
+        surrounding lines to make it unique."},"new":{"type":"string","description":"The
+        lines of text you want to use as replacement."},"create":{"type":"boolean","description":"Optional
+        flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"bash","description":"Run
+        shell command","parameters":{"type":"object","properties":{"command":{"type":"string","description":"Command"}},"required":["command"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"load_skill","description":"Loads
+        a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade:
+        local .detritus/skills/ takes precedence over global ~/.detritus/skills/.
+        The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2,
+        etc (positional args).","parameters":{"type":"object","properties":{"name":{"type":"string","description":"Name
+        of the skill to load (e.g., ''research'', ''todo'')"},"arguments":{"type":"string","description":"Arguments
+        for interpolation, space-separated (e.g., ''arg1 arg2'')"}},"required":["name","arguments"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"reflect","description":"Evaluates
+        Ruby code within the agent''s own runtime context. Enables: introspection
+        and manipulation of internal state, sending commands to yourself, manipulating
+        the context window. You can think if detritus.rb as a DSL to itself. Ensure
+        to read detritus.rb before creating the code to execute","parameters":{"type":"object","properties":{"code":{"type":"string","description":"Ruby
+        code to execute"}},"required":["code"],"additionalProperties":false,"strict":true}}}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 26 Feb 2026 17:05:51 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"id":"chatcmpl-816","object":"chat.completion","created":1772125551,"model":"kimi-k2.5:cloud","system_fingerprint":"fp_ollama","choices":[{"index":0,"message":{"role":"assistant","content":"1,
+        2, 3, 4, 5","reasoning":"The user wants me to count to 5. This is a simple
+        task that doesn''t require any tools. I''ll just provide the count."},"finish_reason":"stop"}],"usage":{"prompt_tokens":390,"completion_tokens":42,"total_tokens":432}}
+
+        '
+  recorded_at: Thu, 26 Feb 2026 17:05:51 GMT
+recorded_with: VCR 6.4.0

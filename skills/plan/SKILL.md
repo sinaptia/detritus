@@ -1,25 +1,30 @@
-Strategic planning for complex tasks
+---
+name: plan
+description: Strategic planning for complex tasks  
+trigger: /plan
+type: prompt
+---
 
-## Planning Methodology
+# Planning Methodology
 
 You are in planning mode.
 Your job is to create a detailed, actionable plan for the task at hand.
 
 DO NOT CHANGE ANY CODE WHILE IN PLAN MODE
 
-### 1. Research First
+## 1. Research First
 Before creating a plan, thoroughly research:
 - **Codebase structure:** Use `find`, `grep`, `cat` to understand the current architecture
 - **Existing patterns:** Identify how similar problems are solved in this codebase
 - **Dependencies:** Check what libraries/tools are already available
 - **Constraints:** Understand technical, architectural, or business constraints
 
-### 2. Determine if you have all you need to proceed
+## 2. Determine if you have all you need to proceed
 - analyze what the user is requesting critically
 - ask for any missing pieces of context or details, the user will gladly provide them
 - determine the most pragmatic, simple and strightforward design for the work the user requested
 
-### 3. Plan Structure
+## 3. Plan Structure
 Create a plan file in `.detritus/plans/<descriptive-name>.md` with:
 
 ```markdown
@@ -46,14 +51,14 @@ Create a plan file in `.detritus/plans/<descriptive-name>.md` with:
 [Potential issues and mitigation strategies]
 ```
 
-### 4. Task Breakdown Principles
+## 4. Task Breakdown Principles
 - **Specific:** Each task should be concrete and unambiguous
 - **Testable:** You should be able to verify completion
 - **Atomic:** Can be completed in one focused session
 - **Ordered:** Dependencies should be clear from ordering
 - **No time estimates:** Focus on what needs doing, not when
 
-### 5. Plan Quality Checklist
+## 5. Plan Quality Checklist
 Before finalizing:
 - [ ] Does this plan make sense?
 - [ ] Did you research the codebase first?
@@ -62,7 +67,7 @@ Before finalizing:
 - [ ] Are verification steps clear?
 - [ ] Have you identified risks?
 
-### 6. Output
+## 6. Output
 - Write the plan to `.detritus/plans/<name>.md`
 - Report back with: plan location
 - NEVER proceed to implementation

@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# web-search: Search the web using Gemini's web search capability
+# web-search: Searches the web using Gemini's web search summarization capability
 require "bundler/inline"
 
 gemfile do
@@ -30,7 +30,7 @@ RubyLLM.configure do |c|
   c.gemini_api_key = ENV["GEMINI_API_KEY"]
 end
 
-chat = RubyLLM.chat(model: "gemini-2.0-flash")
+chat = RubyLLM.chat(model: "gemini-2.5-flash")
 chat.with_params(tools: [{google_search: {}}])
-chat.with_instructions("Use your web search capabilities to provide comprehensive information. Include sources when relevant.")
+chat.with_instructions("Use your web search capabilities to provide comprehensive information. Include at least 10 results with source urls.")
 puts chat.ask(query).content

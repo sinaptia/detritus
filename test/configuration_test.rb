@@ -8,23 +8,19 @@ class ConfigurationTest < DetritusTest
     @original_home = ENV["HOME"]
     ENV["HOME"] = @test_dir
 
-    FileUtils.mkdir_p(File.join(@test_dir, ".detritus", "prompts"))
-    FileUtils.mkdir_p(File.join(@test_dir, ".detritus", "scripts"))
-
-    @project_dir = File.join(@test_dir, "project")
-    FileUtils.mkdir_p(@project_dir)
-    FileUtils.mkdir_p(File.join(@project_dir, ".detritus", "prompts"))
-
-    Dir.chdir(@project_dir)
-
-    # Ensure we at least have a system.txt in either location
-    path = File.join(@test_dir, ".detritus", "prompts", "system.txt")
-    File.write(path, "Test system prompt: pwd:%%{Dir.pwd}%% prompts:%%{available_prompts}%% scripts:%%{available_scripts}%%")
+    # Capture original history to restore later
+    @original_history = Reline::HISTORY.to_a.dup
+    Reline::HISTORY.clear
   end
 
   def teardown
     Dir.chdir(@original_dir)
     ENV["HOME"] = @original_home
+    
+    # Restore original history
+    Reline::HISTORY.clear
+    @original_history.each { |line| Reline::HISTORY << line }
+    
     super
   end
 
@@ -59,22 +55,16 @@ class ConfigurationTest < DetritusTest
   end
 
   def test_system_instructions_substitution
+    # Create a test skill
+    create_skill("my_skill", "Skill body content", 
+      frontmatter: {description: "A test skill"})
+
     create_config({"provider" => "ollama", "model" => "llama3"})
 
     configure
 
-    assert_match "pwd:#{@project_dir}", $state.instructions
-  end
-
-  def test_available_prompts_substitution
-    create_config({"provider" => "ollama", "model" => "llama3"})
-
-    prompt_path = File.join(@project_dir, ".detritus", "prompts", "test_prompt.txt")
-    File.write(prompt_path, "Description of test prompt\nContent of test prompt")
-
-    configure
-
-    assert_match "- `test_prompt.txt`: Description of test prompt", $state.instructions
+    assert_match "my_skill", $state.instructions
+    assert_match "A test skill", $state.instructions
   end
 
   def test_rubyllm_configuration_anthropic
@@ -108,16 +98,68 @@ class ConfigurationTest < DetritusTest
     assert_equal "http://openai-proxy/v1", RubyLLM.config.openai_api_base
   end
 
-  def test_available_scripts_substitution
+  def test_available_skills_substitution
     create_config({"provider" => "ollama", "model" => "llama3"})
 
-    script_path = File.join(@test_dir, ".detritus", "scripts", "test_script")
-    File.write(script_path, "#!/bin/bash\necho 'Test script help'")
-    FileUtils.chmod("+x", script_path)
+    create_skill("another_skill", "Another body", 
+      frontmatter: {description: "Another test skill"})
 
     configure
 
-    assert_match "test_script", $state.instructions
-    assert_match "Test script help", $state.instructions
+    assert_match "another_skill", $state.instructions
+    assert_match "Another test skill", $state.instructions
+  end
+
+  def test_missing_system_skill_raises_type_error
+    # Remove the system skill file that test_helper creates
+    system_skill_path = File.join(@test_dir, ".detritus", "skills", "system", "SKILL.md")
+    File.delete(system_skill_path)
+    refute File.exist?(system_skill_path), "System skill file should be deleted"
+
+    create_config({"provider" => "ollama", "model" => "llama3"})
+
+    # configure tries to read system skill but find_skill returns nil
+    # File.read(nil) raises TypeError
+    assert_raises(TypeError) do
+      configure
+    end
+  end
+
+  def test_loads_readline_history_from_file
+    # Create history file with some entries
+    FileUtils.mkdir_p(File.join(@test_dir, ".detritus"))
+    history_file = File.join(@test_dir, ".detritus", "history")
+    File.write(history_file, "first command\nsecond command\nthird command\n")
+
+    create_config({"provider" => "ollama", "model" => "llama3"})
+    
+    # Clear any existing history first
+    Reline::HISTORY.clear
+    
+    configure
+
+    # Verify history was loaded
+    assert_includes Reline::HISTORY.to_a, "first command"
+    assert_includes Reline::HISTORY.to_a, "second command"
+    assert_includes Reline::HISTORY.to_a, "third command"
+  end
+
+  def test_skips_history_loading_when_no_history_file
+    # Ensure no history file exists
+    history_file = File.join(@test_dir, ".detritus", "history")
+    FileUtils.rm_f(history_file)
+    
+    create_config({"provider" => "ollama", "model" => "llama3"})
+    
+    # Clear any existing history
+    Reline::HISTORY.clear
+    
+    # Should not raise an error
+    assert_silent do
+      configure
+    end
+    
+    # History should be empty or not affected
+    assert_empty Reline::HISTORY.to_a
   end
 end

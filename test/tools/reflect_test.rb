@@ -58,6 +58,18 @@ class ReflectToolTest < DetritusTest
     assert_includes result[:error], "SyntaxError"
   end
 
+  def test_returns_error_for_nil_code
+    result = @tool.execute(code: nil)
+
+    assert_equal({error: "Missing required parameter: code"}, result)
+  end
+
+  def test_returns_error_for_missing_code_key
+    result = @tool.execute(**{})
+
+    assert_equal({error: "Missing required parameter: code"}, result)
+  end
+
   private
 
   def capture_io

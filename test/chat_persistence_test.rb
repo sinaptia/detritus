@@ -16,11 +16,12 @@ class ChatPersistenceTest < DetritusTest
   def test_creates_chat_with_default_tools
     chat = create_chat
 
-    assert_equal 3, chat.tools.size
+    assert_equal 4, chat.tools.size
 
     tool_classes = chat.tools.values.map(&:class)
     assert_includes tool_classes, EditFile
     assert_includes tool_classes, Bash
+    assert_includes tool_classes, LoadSkill
     assert_includes tool_classes, Reflect
   end
 
@@ -93,5 +94,43 @@ class ChatPersistenceTest < DetritusTest
 
   def test_load_state_returns_nil_for_missing_file
     assert_nil load_state("non_existent_chat_id")
+  end
+
+  def test_load_state_handles_malformed_state_file
+    chat_id = "corrupted_chat_456"
+    FileUtils.mkdir_p(".detritus/states")
+    # Write invalid Marshal data (not a proper Marshal dump)
+    File.write(".detritus/states/#{chat_id}", "this is not valid marshal data")
+
+    # Should not raise, should return nil
+    result = nil
+    output = capture_io { result = load_state(chat_id) }.first
+
+    assert_nil result
+    assert_includes output, "failed to load state"
+  end
+
+  def test_load_state_handles_corrupted_marshal_data
+    chat_id = "corrupted_marshal_789"
+    FileUtils.mkdir_p(".detritus/states")
+    # Write a truncated Marshal dump (causes TypeError or ArgumentError)
+    File.write(".detritus/states/#{chat_id}", "\x04\b") # Partial Marshal header
+
+    result = nil
+    output = capture_io { result = load_state(chat_id) }.first
+
+    assert_nil result
+    assert_includes output, "failed to load state"
+  end
+
+  private
+
+  def capture_io
+    old_stdout = $stdout
+    $stdout = StringIO.new
+    yield
+    [$stdout.string]
+  ensure
+    $stdout = old_stdout
   end
 end

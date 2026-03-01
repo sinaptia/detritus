@@ -18,14 +18,7 @@ class NonInteractiveTest < DetritusTest
     $state.chat = create_chat(persist: false)
   end
 
-  def test_slash_command_with_prompt_works_non_interactively
-    create_prompt("greet", "Greeting prompt\nSay hello to {{ARGS}}")
 
-    with_vcr("non_interactive_slash_command") do
-      output = capture_io { handle_prompt("/greet world") }.first
-      assert $state.chat.messages.size >= 1
-    end
-  end
 
   def test_regular_message_works_non_interactively
     with_vcr("non_interactive_regular_message") do

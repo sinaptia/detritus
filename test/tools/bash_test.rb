@@ -35,14 +35,29 @@ class BashToolTest < DetritusTest
     assert output.length < long_command.length + 20
   end
 
-  private
+  def test_handles_non_zero_exit_code_gracefully
+    # Commands that fail still return their output (or empty string)
+    result = @tool.execute(command: "exit 1")
 
-  def capture_io
-    old_stdout = $stdout
-    $stdout = StringIO.new
-    yield
-    [$stdout.string]
-  ensure
-    $stdout = old_stdout
+    # Non-zero exit doesn't crash, returns empty output from failed command
+    assert_equal "", result
+  end
+
+  def test_returns_error_for_empty_command
+    result = @tool.execute(command: "")
+
+    assert_equal({error: "Missing required parameter: command"}, result)
+  end
+
+  def test_returns_error_for_nil_command
+    result = @tool.execute(command: nil)
+
+    assert_equal({error: "Missing required parameter: command"}, result)
+  end
+
+  def test_returns_error_for_missing_command_key
+    result = @tool.execute(**{})
+
+    assert_equal({error: "Missing required parameter: command"}, result)
   end
 end

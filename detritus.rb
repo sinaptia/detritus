@@ -11,41 +11,25 @@ gemfile do
   gem "fileutils"
 end
 
-# === Scripts and Prompts file searches (global ~/.detritus and project-local .detritus) ===
-def find_resources(subdir, pattern)
-  [".detritus/#{subdir}", "#{ENV["HOME"]}/.detritus/#{subdir}"]
-    .flat_map { |dir| Dir.glob(File.join(File.expand_path(dir), pattern)) }
+def find_skills(name)
+  [".detritus/skills", "#{ENV["HOME"]}/.detritus/skills"]
+    .flat_map { |dir| Dir.glob(File.join(File.expand_path(dir), "#{name}/SKILL.md")) }
     .uniq { |path| File.basename(path) }
 end
 
-def find_prompt_file(name) = find_resources("prompts", "#{name}{,.txt}").first
-def find_script(name) = find_resources("scripts", name).find { |path| File.executable?(path) }
-
-def available_prompts
-  find_resources("prompts", "*.txt")
-    .reject { |path| File.basename(path) == "system.txt" }
-    .map { |file| [File.basename(file), File.readlines(file).first&.strip || "No description available"] }
-    .map { |file, description| "- `#{file}`: #{description}" }.join("\n")
-end
-
-def build_prompt(command, args)
-  if (prompt_file = find_prompt_file(command))
-    File.read(prompt_file).gsub("{{ARGS}}", args)
-  else
-    puts "[✘ Error: Prompt '#{command}' not found"
-  end
-end
-
-def available_scripts
-  find_resources("scripts", "*")
-    .select { |path| File.executable?(path) && File.file?(path) }
-    .map { |file| [file, `#{file} --help 2>&1`.lines.first&.strip || "No description available"] }
-    .to_h
-    .map { |name, desc| "- `#{name}`: #{desc}" }.join("\n")
+def list_skills
+  find_skills("*")
+    .reject { |path| File.basename(File.dirname(path)) == "system" }
+    .map do |path|
+      content = File.read(path)
+      frontmatter = YAML.safe_load($1) || {} if content =~ /\A---+\s*\n(.*?)\n---+\s*\n/m
+      frontmatter ||= {}
+      "- #{File.basename(File.dirname(path))}: #{frontmatter["description"]}"
+    end.join("\n")
 end
 
 # === Chat creation and persistence methods ===
-def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, Reflect], persist: $state.persist_chat)
+def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadSkill, Reflect], persist: $state.persist_chat)
   chat = RubyLLM::Chat.new(model: $state.model, provider: $state.provider)
   chat.with_instructions(instructions) if instructions
   chat.on_end_message do |msg|
@@ -60,17 +44,15 @@ def track_metrics(msg)
   $state.session[:tokens_in] = msg.input_tokens.to_i
   $state.session[:tokens_out] = msg.output_tokens.to_i
   $state.session[:tokens_cached] = msg.cached_tokens.to_i
-  $state.session[:accumulated_tokens_in] += msg.input_tokens.to_i
-  $state.session[:accumulated_tokens_out] += msg.output_tokens.to_i
   $state.session[:messages] += 1
   $state.session[:tool_calls] += 1 if msg.tool_call?
 end
 
 def status_line
-  total = $state.chat.messages.sum { |msg| (msg.input_tokens || 0) + (msg.output_tokens || 0) }
-  current_in = ($state.session[:tokens_in].to_f / 1000).round(1)
-  current_out = ($state.session[:tokens_out].to_f / 1000).round(1)
-  "[#{$state.model} | #{`git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip} | #{$state.session[:messages]} - #{$state.session[:tool_calls]} | #{(total / 1000.0).round(1)}K (#{current_in}/#{current_out})] > "
+  "#{$state.model} " \
+  "[#{(($state.session[:tokens_in] + $state.session[:tokens_out]) / 1000.0).round(1)}K]" \
+  "[#{($state.session[:tokens_cached] / 1000.0).round(1)}K]" \
+  " #{File.basename(ENV["HOST_PWD"]) if ENV["HOST_PWD"]} (#{`git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip}) -> "
 end
 
 def reset_session
@@ -102,10 +84,14 @@ def load_state(id)
     $state.provider = data[:provider]
   end
 
-  create_chat(instructions: nil, persist: false).tap do |chat|
-    data[:messages].each { |msg| chat.add_message(msg) }
-    puts "[✓ State resumed: #{id} (#{data[:messages].size} messages)]"
+  chat = create_chat(instructions: nil, persist: false)
+  data[:messages].each do |msg|
+    chat.add_message(msg)
+    puts msg.content
   end
+  puts "[✓ State resumed: #{id} (#{data[:messages].size} messages)]"
+
+  chat
 rescue => e
   puts "[✗ failed to load state: #{e.message}]"
   nil
@@ -127,7 +113,7 @@ class EditFile < RubyLLM::Tool
 
     FileUtils.touch(path) if create
     if (content = File.read(path).sub!(old, new))
-      File.write(path, content)
+      bytes = File.write(path, content)
       "ok"
     else
       {error: "<old> text not found in file. You might need to re-read the file"}
@@ -142,11 +128,37 @@ class Bash < RubyLLM::Tool
   param :command, desc: "Command"
 
   def execute(command: nil, **rest)
-    return {error: "Missing required parameter: command"} if command.nil?
+    return {error: "Missing required parameter: command"} if command.nil? || command.empty?
     puts "\n{Bash #{command[0..100]}...}"
     Bundler.with_unbundled_env { `#{command}` }
   rescue => e
     {error: e.message}
+  end
+end
+
+class LoadSkill < RubyLLM::Tool
+  description "Loads a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade: local .detritus/skills/ takes precedence over global ~/.detritus/skills/. The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2, etc (positional args)."
+  param :name, desc: "Name of the skill to load (e.g., 'research', 'todo')", required: true
+  param :arguments, desc: "Arguments for interpolation, space-separated (e.g., 'arg1 arg2')"
+
+  def execute(name: nil, arguments: "")
+    return {error: "Missing required parameter: name"} if name.nil? || name.empty?
+
+    skill_file = find_skills(name).last
+    return {error: "Skill '#{name}' not found"} unless skill_file
+    _, frontmatter, body = File.read(skill_file).split("---", 3)
+    return {error: "Invalid skill file format"} if body.nil? || body.empty? || frontmatter.nil? || frontmatter.empty?
+
+    interpolated = body.strip.gsub("$ARGUMENTS", arguments.to_s)
+    interpolated = interpolated.gsub(/!`([^`]+)`/) { |_match| Bundler.with_unbundled_env { `#{$1}`.chomp } }
+
+    args = arguments.to_s.strip.split(/\s+/)
+    args.each_with_index do |arg, i|
+      interpolated = interpolated.gsub("$#{i + 1}", arg)
+    end
+    interpolated
+  rescue => e
+    {error: "#{e.class.name} - #{e.message}"}
   end
 end
 
@@ -186,7 +198,7 @@ def handle_prompt(prompt)
     $state.chat.with_model($state.model, provider: $state.provider)
     puts "[✓ Switched to #{$state.provider}/#{$state.model}]"
   when %r{^/(\w+)\s*(.*)}
-    (rendered_prompt = build_prompt($1, $2)) && stream_response(rendered_prompt)
+    (rendered_prompt = LoadSkill.new.execute(name: $1, arguments: $2)) && stream_response(rendered_prompt)
   else
     stream_response(prompt)
   end
@@ -208,11 +220,7 @@ def configure(resume_id: nil)
   local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
   $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
 
-  $state.instructions = File.read(find_prompt_file("system"))
-    .sub("%%{Dir.pwd}%%", Dir.pwd)
-    .sub("%%{available_prompts}%%", available_prompts)
-    .sub("%%{available_scripts}%%", available_scripts)
-    .sub("%%{AGENTS.md}%%", (File.exist?("AGENTS.md") ? File.read("AGENTS.md") : ""))
+  $state.instructions = File.read(find_skills("system").last).sub("%%{available_skills}%%", list_skills)
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|
@@ -238,6 +246,7 @@ def configure(resume_id: nil)
   reset_session
   $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
   $state.chat = create_chat
+  $state.chat.with_tool(LoadSkill)
 end
 
 configure

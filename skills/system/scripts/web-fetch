@@ -1,4 +1,5 @@
 #!/bin/bash
+# web-fetch: gets the content of a url as markdown
 if [ "$1" = "--help" ]; then
   echo "Fetch and read web page contents in markdown format"
   exit 0
