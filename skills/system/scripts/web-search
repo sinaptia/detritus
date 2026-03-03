@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# web-search: Searches the web using Gemini's web search summarization capability
+# Searches the web using Gemini's web search summarization capability
 require "bundler/inline"
 
 gemfile do

@@ -41,9 +41,16 @@ end
 
 def track_metrics(msg)
   return unless msg
+  # Current values (context window view for status)
   $state.session[:tokens_in] = msg.input_tokens.to_i
   $state.session[:tokens_out] = msg.output_tokens.to_i
   $state.session[:tokens_cached] = msg.cached_tokens.to_i
+
+  # Accumulated totals (for session analysis/comparison)
+  $state.session[:accumulated_tokens_in] += msg.input_tokens.to_i
+  $state.session[:accumulated_tokens_out] += msg.output_tokens.to_i
+  $state.session[:accumulated_tokens_cached] += msg.cached_tokens.to_i
+
   $state.session[:messages] += 1
   $state.session[:tool_calls] += 1 if msg.tool_call?
 end
@@ -56,7 +63,7 @@ def status_line
 end
 
 def reset_session
-  $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, accumulated_tokens_in: 0, accumulated_tokens_out: 0, tool_calls: 0, messages: 0}
+  $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, accumulated_tokens_in: 0, accumulated_tokens_out: 0, accumulated_tokens_cached: 0, tool_calls: 0, messages: 0}
 end
 
 def save_state
