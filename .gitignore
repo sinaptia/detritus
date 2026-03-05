@@ -5,3 +5,6 @@ tmp
 test/tmp
 TODO
 PLAN.yml
+skills/*
+!skills/system
+!skills/compact
