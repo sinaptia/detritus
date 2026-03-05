@@ -119,7 +119,14 @@ class EditFile < RubyLLM::Tool
     puts "\n{FileEdit path: #{path}}"
 
     FileUtils.touch(path) if create
-    if (content = File.read(path).sub!(old, new))
+    file_content = File.read(path)
+    if file_content.include?(old)
+      puts "\e[31m--- #{path} (old)\e[0m"
+      puts "\e[32m+++ #{path} (new)\e[0m"
+      old.each_line { |line| puts "\e[31m-#{line.chomp}\e[0m" }
+      new.each_line { |line| puts "\e[32m+#{line.chomp}\e[0m" }
+
+      content = file_content.sub(old, new)
       bytes = File.write(path, content)
       "ok"
     else
@@ -163,6 +170,7 @@ class LoadSkill < RubyLLM::Tool
     args.each_with_index do |arg, i|
       interpolated = interpolated.gsub("$#{i + 1}", arg)
     end
+    puts "\n{LoadSkill #{name} #{arguments[0..100]}}"
     interpolated
   rescue => e
     {error: "#{e.class.name} - #{e.message}"}
@@ -227,7 +235,8 @@ def configure(resume_id: nil)
   local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
   $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
 
-  $state.instructions = File.read(find_skills("system").last).sub("%%{available_skills}%%", list_skills)
+  # Load system skill with proper interpolation
+  $state.instructions = LoadSkill.new.execute(name: "system").sub("%%{list_skills}%%", list_skills)
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|
@@ -260,8 +269,10 @@ configure
 return if ENV["DETRITUS_TEST"]
 
 if ARGV.first ## non-interactive mode
+  $state.mode = :non_interactive
   handle_prompt(ARGV.join(" "))
 else
+  $state.mode = :interactive
   loop do # Interactive REPL
     input = Reline.readline(status_line, true)
     break if input.nil? # Ctrl+D to exit
