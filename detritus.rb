@@ -29,7 +29,7 @@ def list_skills
 end
 
 # === Chat creation and persistence methods ===
-def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadSkill, Reflect], persist: $state.persist_chat)
+def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadSkill, Reflect, AttachFile], persist: $state.persist_chat)
   chat = RubyLLM::Chat.new(model: $state.model, provider: $state.provider)
   chat.with_instructions(instructions) if instructions
   chat.on_end_message do |msg|
@@ -64,6 +64,7 @@ end
 
 def reset_session
   $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, accumulated_tokens_in: 0, accumulated_tokens_out: 0, accumulated_tokens_cached: 0, tool_calls: 0, messages: 0}
+  $state.files = []
 end
 
 def save_state
@@ -94,7 +95,8 @@ def load_state(id)
   chat = create_chat(instructions: nil, persist: false)
   data[:messages].each do |msg|
     chat.add_message(msg)
-    puts msg.content
+    content = msg.respond_to?(:content) ? msg.content : msg[:content]
+    puts content
   end
   puts "[✓ State resumed: #{id} (#{data[:messages].size} messages)]"
 
@@ -170,7 +172,7 @@ class LoadSkill < RubyLLM::Tool
     args.each_with_index do |arg, i|
       interpolated = interpolated.gsub("$#{i + 1}", arg)
     end
-    puts "\n{LoadSkill #{name} #{arguments[0..100]}}"
+    puts "\n{LoadSkill #{name} #{arguments[0..100]}}" unless ENV["DETRITUS_TEST"]
     interpolated
   rescue => e
     {error: "#{e.class.name} - #{e.message}"}
@@ -191,6 +193,16 @@ class Reflect < RubyLLM::Tool
   end
 end
 
+class AttachFile < RubyLLM::Tool
+  description "Attach file"
+  param :path, desc: "Path", required: true
+  def execute(path: nil)
+    return {error: "?"} unless path && File.exist?(path)
+    $state.files << path
+    {ok: path}
+  end
+end
+
 # === REPL ===
 def handle_prompt(prompt)
   prompt = prompt.strip
@@ -201,6 +213,9 @@ def handle_prompt(prompt)
     reset_session
     $state.chat = create_chat
     puts "\n[✓ context cleared]"
+  when %r{^/attach\s+(.+)}
+    $state.files << $1.strip
+    puts "[✓ #{$1.strip}]"
   when %r{^/resume\s+(.+)}
     $state.current_chat_id = $1
     $state.chat = load_state($1) || $state.chat
@@ -220,7 +235,7 @@ def handle_prompt(prompt)
 end
 
 def stream_response(prompt)
-  $state.chat.ask(prompt) do |chunk|
+  $state.chat.ask(prompt, with: $state.files) do |chunk|
     $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
     print chunk.content if chunk.content&.strip
   end
@@ -236,7 +251,11 @@ def configure(resume_id: nil)
   $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
 
   # Load system skill with proper interpolation
-  $state.instructions = LoadSkill.new.execute(name: "system").sub("%%{list_skills}%%", list_skills)
+  system_skill_content = LoadSkill.new.execute(name: "system")
+  if system_skill_content.is_a?(Hash) && system_skill_content[:error]
+    raise TypeError, "System skill not found"
+  end
+  $state.instructions = system_skill_content.gsub("%%{available_skills}%%", list_skills)
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|
