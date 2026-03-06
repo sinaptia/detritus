@@ -18,6 +18,8 @@ docker run $INTERACTIVE --rm \
   -v "$(pwd):/workdir" \
   -v "$HOME/.detritus:/root/.detritus" \
   -v detritus-gems:/usr/local/bundle \
+  -v detritus-playwright-cli:/root/.npm/_npx \
+  -v detritus-playwright-browsers:/root/.cache/ms-playwright \
   -e GEMINI_API_KEY="${GEMINI_API_KEY}" \
   -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}" \
   -e OPENAI_API_KEY="${OPENAI_API_KEY}" \

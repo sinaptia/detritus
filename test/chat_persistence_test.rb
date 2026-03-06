@@ -16,13 +16,14 @@ class ChatPersistenceTest < DetritusTest
   def test_creates_chat_with_default_tools
     chat = create_chat
 
-    assert_equal 4, chat.tools.size
+    assert_equal 5, chat.tools.size
 
     tool_classes = chat.tools.values.map(&:class)
     assert_includes tool_classes, EditFile
     assert_includes tool_classes, Bash
     assert_includes tool_classes, LoadSkill
     assert_includes tool_classes, Reflect
+    assert_includes tool_classes, AttachFile
   end
 
   def test_creates_chat_with_custom_tools

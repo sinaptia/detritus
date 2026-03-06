@@ -39,6 +39,24 @@ class ReplTest < DetritusTest
     refute_same old_chat, $state.chat
   end
 
+  def test_new_clears_attached_files
+    $state.files = ["/tmp/test1.txt", "/tmp/test2.txt"]
+    assert_equal 2, $state.files.size
+
+    handle_prompt("/new")
+
+    assert_empty $state.files
+  end
+
+  def test_clear_clears_attached_files
+    $state.files = ["/tmp/test1.txt"]
+    refute_empty $state.files
+
+    handle_prompt("/clear")
+
+    assert_empty $state.files
+  end
+
 
 
   def test_resume_id_loads_state_successfully
