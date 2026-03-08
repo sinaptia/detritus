@@ -35,7 +35,9 @@ def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadS
   chat.on_end_message do |msg|
     track_metrics(msg)
     save_state if persist
+    $stderr.print "\a" if $state.notification # Terminal bell when response complete
   end
+  chat.on_tool_result { print status_line }
   chat.with_tools(*tools)
 end
 
@@ -123,10 +125,7 @@ class EditFile < RubyLLM::Tool
     FileUtils.touch(path) if create
     file_content = File.read(path)
     if file_content.include?(old)
-      puts "\e[31m--- #{path} (old)\e[0m"
-      puts "\e[32m+++ #{path} (new)\e[0m"
-      old.each_line { |line| puts "\e[31m-#{line.chomp}\e[0m" }
-      new.each_line { |line| puts "\e[32m+#{line.chomp}\e[0m" }
+      puts unified_diff(path, old, new)
 
       content = file_content.sub(old, new)
       bytes = File.write(path, content)
@@ -136,6 +135,29 @@ class EditFile < RubyLLM::Tool
     end
   rescue => e
     {error: "#{e.class.name} - #{e.message}"}
+  end
+
+  def unified_diff(path, old, new)
+    require "tempfile"
+    old_file = Tempfile.new("old")
+    new_file = Tempfile.new("new")
+    old_file.write(old)
+    new_file.write(new)
+    old_file.close
+    new_file.close
+
+    output = `diff --color=always -u -U 3 #{old_file.path} #{new_file.path} 2>/dev/null || true`
+    old_file.unlink
+    new_file.unlink
+
+    if output.empty?
+      puts "\e[33m~ #{path} (no changes)\e[0m"
+    else
+      lines = output.lines
+      lines.shift(3)  # Remove ---, +++, and @@ hunk header lines
+      lines = lines.reject { |line| line.include?("No newline at end of file") }
+      puts lines.join
+    end
   end
 end
 
@@ -197,7 +219,7 @@ class AttachFile < RubyLLM::Tool
   description "Attach file"
   param :path, desc: "Path", required: true
   def execute(path: nil)
-    return {error: "?"} unless path && File.exist?(path)
+    return {error: "File `#{path}` doesn't exist?"} unless path && File.exist?(path)
     $state.files << path
     {ok: path}
   end
@@ -235,13 +257,21 @@ def handle_prompt(prompt)
 end
 
 def stream_response(prompt)
-  $state.chat.ask(prompt, with: $state.files) do |chunk|
+  if $state.files&.any?
+    content = RubyLLM::Content.new(prompt, $state.files)
+    $state.chat.add_message(role: :user, content: content)
+  else
+    $state.chat.add_message(role: :user, content: prompt)
+  end
+  $state.chat.complete do |chunk|
     $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
     print chunk.content if chunk.content&.strip
   end
   puts
 rescue => e
   puts "\n[✗ Unexpected error: #{e.class} - #{e.message}]"
+ensure
+  $state.files.clear
 end
 
 def configure(resume_id: nil)
