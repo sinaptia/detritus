@@ -1,34 +1,37 @@
 # Detritus
 
-The simplest, more straightforward, stupidly-effective agent we could come up with.
-Aptly named after Lance Constable Detritus of the Ankh-Morpork City Watch from [Discworld](https://en.wikipedia.org/wiki/Discworld), Detritus is built in about 250 lines of code packing:
+The simplest, most straightforward, stupidly-effective agent we could come up with.
+Aptly named after Lance Constable Detritus of the Ankh-Morpork City Watch from [Discworld](https://en.wikipedia.org/wiki/Discworld), Detritus is built in about 350 lines of code packing:
 
 * support for multiple models and providers
 * a basic interactive CLI with history
-* custom slash commands and skills-like instruction format
+* standard skills
 * chat persistence
 * subagents
 * 2-level configuration (project and global)
+* automatic compaction (optional)
 * fun personality (thanks to Sir Terry Pratchett)
 
-Almost a full-featured coding agent, but more than anything an experimentation platform: A single file you can read in one sitting, extend with plain text prompts and shell scripts you (or itself) already know how to write.
+Almost a full-featured coding agent, but more than anything an experimentation platform: A single file you can read in one sitting, extend with your skills and scripts
 
-### Almost? what is it missing?
+### Almost? What is it missing?
 
 No guardrails. No tool permission model. No confirmation dialogs before file edits or tool calls. Detritus will happily rewrite your code the moment it decides that's the right move (how eager depends on the underlying model you pick) but "a little anxious" would be a fair description.
 
-Do not leave it unsupervised on production, do not run it directly on your machine, use git, branches, etc, you know the drill.
-It does run inside docker container by default, so the impact is kind of contained, but be warned: you are letting lose a troll with a huge cross-bow in you project.
+Do not leave it unsupervised on production, do not run it on your home dir, commit often, use branches, etc.. you know the drill.
+It does run inside docker container by default, so the impact is somewhat of contained, but never forget you are letting lose a troll with a huge cross-bow with full access to your code.
 
 ## Usage
 
 ### REPL Commands
 
-- `/<prompt> [args]` — Execute a named prompt
-- `/load <prompt> [args]` — Load a prompt into context without executing
+- `/<skill> [args]` — Execute a named skill (loads `skills/<skill>/SKILL.md`)
+- `/attach <file>` — Attach file to the next message
+- `/compact [focus]` — Summarize and archive old messages to save context
 - `/new`, `/clear` — Reset conversation
-- `/resume [id]` — Resume a previous chat (no arg lists available sessions)
+- `/resume [id]` — Resume a previous chat (no arg = list available sessions)
 - `/model <provider>/<model>` — Switch model at runtime
+- `!<command>` — Direct shell execution with output captured
 - `/exit`, `/quit`, `Ctrl+D` — Exit
 
 ### Non-Interactive Mode
@@ -57,76 +60,60 @@ For project-specific overrides, create `.detritus/config.yml` in your project di
 
 ```bash
 # Add to PATH (optional)
-echo 'export PATH="$HOME/.detritus/bin:$PATH"' >> ~/.zshrc
-
+echo 'export PATH="$HOME/.detritus/bin:$PATH"' >> ~/.bashrc
 # Run (builds Docker image on first run)
-bin/detritus
+detritus
 ```
 
 ## Extending
 
-Detritus is extended through two mechanisms: **prompts** and **scripts**. Both are resolved from two locations, with local taking precedence:
+Detritus is extended through **skills** following the [AgentSkills specification](https://agentskills.io/specification) so you can use the same skills you use on other coding agents. Even Detritus' own system prompt is a [skill you can read and modify](https://github.com/sinaptia/detritus/blob/main/skills/system/SKILL.md).
 
-1. `.detritus/` in the current project directory
-2. `~/.detritus/` global directory
+Skills are located in `skills/` directories, searched in this order (local takes precedence):
 
-### Prompts
+1. `.detritus/skills/` — Project-specific skills
+2. `~/.detritus/skills/` — Global user skills
 
-Prompts are text files in `prompts/` that provide specialized instructions. The first line is the description (shown in the agent's available prompts list), the rest is the content. Use `{{ARGS}}` as a placeholder for arguments passed from the REPL.
-
-```
-prompts/
-  system.txt      # Base instructions for all agents (special, always loaded)
-  review.txt      # /review invokes this
-  plan.txt        # /plan invokes this
-```
-
-To create one:
+### Creating a Skill
 
 ```bash
-cat > ~/.detritus/prompts/review.txt << 'EOF'
-Review code for bugs and improvements
-Analyze the following code and provide feedback:
+mkdir -p ~/.detritus/skills/research/{scripts,references}
 
-{{ARGS}}
+cat > ~/.detritus/skills/research/SKILL.md << 'EOF'
+---
+name: research
+description: Web research assistant
+---
+
+You are a research assistant. Use web search and analysis tools to investigate: $ARGUMENTS
+
+Focus on finding primary sources and recent information.
 EOF
 ```
 
-Then use it: `/review path/to/file.rb`
+Use it: `/research distributed systems consensus algorithms`
 
-Prompts can also be loaded into sub-agents via the `use_prompt` parameter, giving you specialized agent modes.
+#### String substitution and dynamic content injection
 
-### Scripts
+Detritus skill system supports string placeholders like $ARGUMENTS, $1, $2, ..., $N for argument substitution
+and !`bash command` for dynamic content injection
 
-Scripts are executable files in `scripts/` that the agent discovers automatically and can invoke via the Bash tool. They must support a `--help` flag — the first line of its output is used as the description the LLM sees.
 
-To create one:
+### Skill scripts
+
+Scripts in `skills/<name>/scripts/` are executable files the agent can invoke via it bash tool.
 
 ```bash
-cat > ~/.detritus/scripts/my-tool << 'EOF'
+cat > ~/.detritus/skills/research/scripts/web-search << 'EOF'
 #!/bin/bash
 if [ "$1" = "--help" ]; then
-  echo "One-line description of what this does"
+  echo "Search the web using Gemini"
   exit 0
 fi
 # your logic here
+curl -s "https://.../search?q=$1"
 EOF
-chmod +x ~/.detritus/scripts/my-tool
+chmod +x ~/.detritus/skills/research/scripts/web-search
 ```
-
-The agent sees the script in its system prompt and can decide when to use it.
-
-### Combining Prompts and Scripts
-
-The real power is in combining both: a prompt provides the workflow and instructions, a script provides the custom tooling. The agent connects them automatically through the system prompt, which lists all available prompts and scripts.
-
-### System Prompt
-
-The base behavior is defined in `prompts/system.txt`. It supports template variables:
-
-- `%%{Dir.pwd}%%` — Current working directory
-- `%%{available_prompts}%%` — Auto-populated list of available prompts
-- `%%{available_scripts}%%` — Auto-populated list of available scripts
-
-Edit it to change how the agent behaves.
+The skill file must list and describe the scripts so the agent can use them
 
