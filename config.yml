@@ -27,3 +27,9 @@ api_base: http://host.docker.internal:11434/v1
 # provider: openai
 # model: gpt-oss-20b
 # api_base: http://localhost:1234/v1
+
+compaction:
+  enabled: true
+  trigger_tokens: 80_000
+  keep_message_count: 6
+use_terminal_bell: true

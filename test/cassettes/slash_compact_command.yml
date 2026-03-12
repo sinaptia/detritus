@@ -1,0 +1,172 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://host.docker.internal:11434/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"kimi-k2.5:cloud","messages":[{"role":"user","content":"#
+        Conversation Compaction\n\nCreate a structured checkpoint summary of the conversation
+        so far. This preserves essential information while freeing context window
+        space.\n\n## Summary Format\n\nProvide a structured summary with these sections:\n\n##
+        Goal\n[Primary objective of the conversation/task]\n\n## Progress\n### Done\n-
+        [x] [Completed work item]\n\n### In Progress\n- [ ] [Current state of ongoing
+        work]\n\n## Key Decisions\n- [What was decided and why]\n\n## Critical Context\n-
+        [Files read/modified]\n- [Important data needed to continue]\n- [Open questions
+        or blockers]\n\n## Usage\n\nWhen you notice the context getting lengthy or
+        need to refocus, create a compaction summary that captures the essential state.
+        The system will:\n1. Archive older messages\n2. Store your summary as context\n3.
+        Continue from the last kept messages\n\nFocus: \n\n[user]: Message 1\n[user]:
+        Message 2\n[user]: Message 3"}],"stream":false}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 12 Mar 2026 04:43:10 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"id":"chatcmpl-726","object":"chat.completion","created":1773290590,"model":"kimi-k2.5:cloud","system_fingerprint":"fp_ollama","choices":[{"index":0,"message":{"role":"assistant","content":"##
+        Goal\nInitialize conversation compaction system and establish checkpoint structure
+        for dialogue management\n\n## Progress\n### Done\n- [x] Provided conversation
+        compaction template and format specifications\n- [x] Identified focus scope
+        (Messages 1-3) for initial summary baseline\n\n### In Progress\n- [ ] Awaiting
+        substantive conversation content to populate summary with actual decisions
+        and context\n\n## Key Decisions\n- Adopt structured checkpoint format with
+        Goal, Progress, Key Decisions, and Critical Context sections\n- Archive placeholder
+        messages (Message 1, Message 2, Message 3) to free context window for actual
+        task execution\n\n## Critical Context\n- **Files/Data**: No files modified;
+        conversation at initialization stage\n- **History**: 3 prior user messages
+        (Message 1, Message 2, Message 3) - content appears to be placeholder/test
+        data\n- **Blockers**: None; system ready to proceed with actual conversation/task
+        once initiated\n- **Next Action**: Await specific task requirements or begin
+        primary conversation thread","reasoning":"The user wants me to create a conversation
+        compaction summary based on the provided context. However, looking at the
+        \"Focus\" section at the bottom, it only shows:\n\n[user]: Message 1\n[user]:
+        Message 2\n[user]: Message 3\n\nBut there are no actual messages provided
+        in the conversation history. The user is asking me to summarize a conversation
+        that hasn''t happened yet, or they''re providing a template/example of how
+        to use the compaction feature.\n\nWait, let me re-read carefully. The user
+        is asking me to create a structured checkpoint summary of \"the conversation
+        so far.\" But looking at the actual conversation history provided in the prompt,
+        there is no conversation history - this appears to be the first message.\n\nThe
+        \"Focus\" section at the bottom seems to indicate where the conversation content
+        would be, but it just says \"Message 1\", \"Message 2\", \"Message 3\" as
+        placeholders.\n\nI think the user is either:\n1. Testing the compaction template/format\n2.
+        Asking me to demonstrate how to use it with placeholder/example content\n3.
+        Or there''s a misunderstanding and they think there was prior context\n\nSince
+        there''s no actual conversation content to summarize, I should either:\n-
+        Ask for the conversation content to summarize\n- Or provide a template/example
+        of how the summary would look with placeholder content based on the \"Message
+        1/2/3\" hints\n\nGiven the instructions say \"Create a structured checkpoint
+        summary of the conversation so far\" and the Focus shows Message 1, 2, 3,
+        I should probably treat those as the actual content to summarize (even though
+        they''re just labels).\n\nBut that would be a very sparse summary. Let me
+        reconsider...\n\nActually, looking at the pattern, this looks like a meta-instruction
+        where the user is setting up the format for future use, or they''re asking
+        me to demonstrate the compaction format.\n\nGiven that the user provided \"Message
+        1\", \"Message 2\", \"Message 3\" as the focus, and asked for a summary, I''ll
+        create a generic template/example that shows how this would work with those
+        placeholder messages, while noting that this is a demonstration/template.\n\nHowever,
+        if I look at this as a task where I need to extract information from \"Message
+        1\", \"Message 2\", \"Message 3\" (which have no content), I cannot create
+        a meaningful summary.\n\nWait - I think I should interpret this as: The user
+        is providing an example of how the compaction should work. They''ve given
+        me the instruction to create a summary, and shown me that the focus is on
+        \"Message 1\", \"Message 2\", \"Message 3\" (which are presumably the actual
+        messages in the conversation that needs compacting).\n\nSince I don''t know
+        the content of those messages, I should ask the user to provide the actual
+        conversation content, OR I should create a placeholder/example summary showing
+        the format.\n\nBut actually, looking at the structure, this appears to be
+        the user initializing a conversation compaction system. They''ve provided
+        the template and are asking me to use it. But since there''s no actual conversation
+        history above this message (in the context provided to me), I should indicate
+        that there''s no conversation to summarize yet, or create a dummy example.\n\nGiven
+        the prompt structure, I think the best approach is to create an example/demonstration
+        of the format using the \"Message 1/2/3\" as generic placeholders, showing
+        how I would summarize them if they contained typical conversation content.\n\nAlternatively,
+        the user might be asking me to summarize the conversation that we are currently
+        in, but since this is the first message, there is nothing to summarize.\n\nI''ll
+        provide a template response that acknowledges this is either the start of
+        conversation or demonstrates the format with placeholders.\n\nActually, looking
+        more carefully at the user message, the \"Focus\" section lists:\n[user]:
+        Message 1\n[user]: Message 2\n[user]: Message 3\n\nThese appear to be the
+        messages to summarize. Since they have no actual content (just labels), I''ll
+        create a generic summary structure that indicates this is ready to be filled
+        in, or note that content appears to be missing.\n\nBut to be most helpful,
+        I''ll assume this is a test/request for demonstration and provide a sample
+        summary based on hypothetical content for Message 1, 2, and 3, showing how
+        the format works.\n\nWait, I should reconsider. Maybe the user wants me to
+        treat this as: \"Here is a conversation with 3 messages, please compact it\"
+        and since I don''t know what''s in them, I should say I need the content?\n\nNo,
+        looking at the pattern of these types of prompts, usually the \"Focus\" section
+        contains the actual text to be summarized. Since it only shows \"Message 1\"
+        etc., those ARE the messages (perhaps they are literally just numbered messages
+        with that text).\n\nSo:\n- Message 1: \"Message 1\"\n- Message 2: \"Message
+        2\"  \n- Message 3: \"Message 3\"\n\nThat would be a weird conversation, but
+        I can work with it.\n\nActually, I think the most professional response is
+        to create a template/example showing how I would fill this out if there were
+        actual content, while noting that specific details require the actual message
+        content.\n\nOr... I could interpret this as: The conversation so far consists
+        of:\n1. User said \"Message 1\"\n2. User said \"Message 2\"\n3. User said
+        \"Message 3\"\n\nAnd create a summary based on that.\n\nGiven the ambiguity,
+        I''ll provide a structured response that follows the requested format but
+        indicates that this is either an initial state or requires actual conversation
+        content to fill meaningfully.\n\nBut to be safe and helpful, I''ll create
+        a \"demo\" summary showing how the format would be used:\n\nGoal: Demonstrate
+        conversation compaction format\nProgress: \n- Done: Template structure provided\n-
+        In Progress: Awaiting actual conversation content or confirmation this is
+        the start\nKey Decisions: N/A (insufficient context)\nCritical Context: 3
+        placeholder messages referenced (Message 1, 2, 3); Actual content needed for
+        meaningful summary\n\nThis seems honest and useful.\n\nActually, looking at
+        the instruction again: \"Create a structured checkpoint summary of the conversation
+        so far.\"\n\nAnd then \"Focus: [user]: Message 1...\"\n\nI think the user
+        is simulating a scenario where the conversation has 3 messages (which are
+        just labeled as such) and wants to see the compaction format.\n\nI''ll provide
+        a generic/example compaction that treats Message 1, 2, 3 as actual conversation
+        turns, assuming they might contain initial setup, a question, and a clarification
+        - or just acknowledge them as the existing thread.\n\nFinal decision: I''ll
+        create a compaction summary that notes this appears to be the initial state
+        with 3 user messages (content unknown/placeholder), and structure it appropriately.
+        This shows I understand the format while being honest about the limited information.\n\nWait,
+        one more thought: Maybe the user provided previous messages in the actual
+        conversation history (outside the prompt shown), and the \"Focus\" section
+        is just indicating which messages to focus on? But in the prompt given to
+        me, I only see the current message.\n\nGiven standard AI assistant behavior,
+        I should respond based on what I can see. I see no previous conversation history.
+        Therefore, \"the conversation so far\" consists of just this current message
+        from the user.\n\nSo:\n- Message 1: The user providing the compaction instruction
+        template\n- Message 2: (none)\n- Message 3: (none)\n\nOr perhaps the user
+        considers \"Message 1\", \"Message 2\", \"Message 3\" as the prior conversation.\n\nI''ll
+        go with: This is a request to initialize compaction, with the previous conversation
+        being 3 user messages (placeholders).\n\n## Goal\nInitialize conversation
+        compaction system and establish summary structure for upcoming dialogue\n\n##
+        Progress\n### Done\n- [x] Provided compaction template and format requirements\n-
+        [x] Identified 3 prior conversation messages (Message 1, Message 2, Message
+        3) as focus area\n\n### In Progress\n- [ ] Awaiting actual conversation content
+        or task initiation to populate summary fields\n\n## Key Decisions\n- Adopt
+        structured checkpoint format with Goal, Progress, Key Decisions, and Critical
+        Context sections\n- Scope limited to Messages 1-3 for initial compaction baseline\n\n##
+        Critical Context\n- **Messages Referenced**: User Message 1, User Message
+        2, User Message 3 (content not fully specified in focus)\n- **Status**: Initialization/Template
+        demonstration phase\n- **Blockers**: No substantive conversation history to
+        compress; ready to archive placeholder messages and proceed with actual task\n\nThis
+        seems like the most accurate and helpful response."},"finish_reason":"stop"}],"usage":{"prompt_tokens":199,"completion_tokens":1975,"total_tokens":2174}}
+
+        '
+  recorded_at: Thu, 12 Mar 2026 04:43:10 GMT
+recorded_with: VCR 6.4.0

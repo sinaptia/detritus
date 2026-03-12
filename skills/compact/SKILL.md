@@ -1,29 +1,37 @@
 ---
 name: compact
-description: Conversation compaction strategy - use when you need to free context window space
+description: Create a structured summary of conversation context when the window is filling up
 ---
 
 # Conversation Compaction
 
-You are in compaction mode. The context window is filling up and we need to preserve essential information while freeing space.
+Create a structured checkpoint summary of the conversation so far. This preserves essential information while freeing context window space.
 
-## Compaction Strategy
+## Summary Format
 
-1. **Summarize what we've accomplished so far**
-   - Key decisions made
-   - Important code changes
-   - Current state of work
+Provide a structured summary with these sections:
 
-2. **Identify what's still relevant**
-   - Open tasks or pending items
-   - Questions that need answers
-   - Decisions that still need to be made
+## Goal
+[Primary objective of the conversation/task]
 
-3. **Preserve context efficiently**
-   - Remove detailed conversation history
-   - Keep essential facts and decisions
-   - Maintain the thread of the task
+## Progress
+### Done
+- [x] [Completed work item]
 
-## Instructions
+### In Progress
+- [ ] [Current state of ongoing work]
 
-1) Use you Reflect tool to send yourself "/new" and add the summary you made as the first assistant message
+## Key Decisions
+- [What was decided and why]
+
+## Critical Context
+- [Files read/modified]
+- [Important data needed to continue]
+- [Open questions or blockers]
+
+## Usage
+
+When you notice the context getting lengthy or need to refocus, create a compaction summary that captures the essential state. The system will:
+1. Archive older messages
+2. Store your summary as context
+3. Continue from the last kept messages

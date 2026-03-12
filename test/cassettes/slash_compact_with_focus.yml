@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://host.docker.internal:11434/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"kimi-k2.5:cloud","messages":[{"role":"user","content":"#
+        Conversation Compaction\n\nCreate a structured checkpoint summary of the conversation
+        so far. This preserves essential information while freeing context window
+        space.\n\n## Summary Format\n\nProvide a structured summary with these sections:\n\n##
+        Goal\n[Primary objective of the conversation/task]\n\n## Progress\n### Done\n-
+        [x] [Completed work item]\n\n### In Progress\n- [ ] [Current state of ongoing
+        work]\n\n## Key Decisions\n- [What was decided and why]\n\n## Critical Context\n-
+        [Files read/modified]\n- [Important data needed to continue]\n- [Open questions
+        or blockers]\n\n## Usage\n\nWhen you notice the context getting lengthy or
+        need to refocus, create a compaction summary that captures the essential state.
+        The system will:\n1. Archive older messages\n2. Store your summary as context\n3.
+        Continue from the last kept messages\n\nFocus: focused on deployment\n\n[user]:
+        Message 1\n[user]: Message 2\n[user]: Message 3"}],"stream":false}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 12 Mar 2026 04:42:18 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"id":"chatcmpl-711","object":"chat.completion","created":1773290538,"model":"kimi-k2.5:cloud","system_fingerprint":"fp_ollama","choices":[{"index":0,"message":{"role":"assistant","content":"","reasoning":"##
+        Goal\nDeploy the application successfully.\n\n## Progress\n### Done\n- [x]
+        Initial deployment planning initiated\n\n### In Progress\n- [ ] Awaiting specific
+        deployment details (platform, environment, build artifacts)\n\n## Key Decisions\n-
+        None yet; deployment approach to be determined based on target infrastructure\n\n##
+        Critical Context\n- **Files**: None read or modified yet\n- **Data needed**:
+        Deployment target (e.g., Vercel, AWS, Docker, etc.), repository structure,
+        build configuration, environment variables/secrets\n- **Open questions**:
+        \n  - What platform/service is the deployment target?\n  - What is the tech
+        stack (Node, Python, static site, containerized, etc.)?\n  - Are there existing
+        CI/CD pipelines or deployment scripts?\n\n## Usage\nReady to proceed once
+        deployment specifics are provided. Three placeholder messages were archived;
+        continuing from this checkpoint."},"finish_reason":"stop"}],"usage":{"prompt_tokens":201,"completion_tokens":183,"total_tokens":384}}
+
+        '
+  recorded_at: Thu, 12 Mar 2026 04:42:18 GMT
+recorded_with: VCR 6.4.0

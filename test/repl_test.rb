@@ -20,6 +20,7 @@ class ReplTest < DetritusTest
     $state.current_chat_id = "test_repl_#{Time.now.to_i}"
     $state.history_file = File.join(@test_dir, ".detritus", "history")
     $state.chat = create_chat(persist: false)
+    $state.files = Set.new
   end
 
   def test_new_and_clear_create_new_chat
@@ -39,25 +40,87 @@ class ReplTest < DetritusTest
     refute_same old_chat, $state.chat
   end
 
-  def test_new_clears_attached_files
-    $state.files = ["/tmp/test1.txt", "/tmp/test2.txt"]
+  def test_attach_command_adds_file_to_state
+    test_file = File.join(@test_dir, "test.txt")
+    File.write(test_file, "Hello world")
+
+    output = capture_io { handle_prompt("/attach #{test_file}") }.first
+
+    assert_includes output, "[✓ #{test_file}]"
+    assert_includes $state.files, test_file
+  end
+
+  def test_attach_command_with_relative_path
+    test_file = "relative_file.rb"
+    File.write(test_file, "content")
+
+    output = capture_io { handle_prompt("/attach #{test_file}") }.first
+
+    assert_includes output, "[✓ #{test_file}]"
+    assert_includes $state.files, test_file
+  ensure
+    File.delete(test_file) if File.exist?(test_file)
+  end
+
+  def test_attach_command_deduplicates_files
+    test_file = File.join(@test_dir, "test.txt")
+    File.write(test_file, "content")
+
+    capture_io { handle_prompt("/attach #{test_file}") }
+    capture_io { handle_prompt("/attach #{test_file}") }
+
+    assert_equal 1, $state.files.count(test_file)
+  end
+
+  def test_attach_command_preserves_multiple_different_files
+    file1 = File.join(@test_dir, "file1.txt")
+    file2 = File.join(@test_dir, "file2.rb")
+    File.write(file1, "content1")
+    File.write(file2, "content2")
+
+    capture_io { handle_prompt("/attach #{file1}") }
+    capture_io { handle_prompt("/attach #{file2}") }
+
     assert_equal 2, $state.files.size
+    assert_includes $state.files, file1
+    assert_includes $state.files, file2
+  end
 
-    handle_prompt("/new")
+  def test_attach_command_with_spaces_in_path
+    dir_with_spaces = File.join(@test_dir, "my documents")
+    FileUtils.mkdir_p(dir_with_spaces)
+    test_file = File.join(dir_with_spaces, "file with spaces.txt")
+    File.write(test_file, "content")
+
+    output = capture_io { handle_prompt("/attach #{test_file}") }.first
+
+    assert_includes output, "[✓ #{test_file}]"
+    assert_includes $state.files, test_file
+  end
+
+  def test_attach_command_clears_on_new_session
+    test_file = File.join(@test_dir, "test.txt")
+    File.write(test_file, "content")
+
+    capture_io { handle_prompt("/attach #{test_file}") }
+    assert_includes $state.files, test_file
+
+    capture_io { handle_prompt("/new") }
 
     assert_empty $state.files
   end
 
-  def test_clear_clears_attached_files
-    $state.files = ["/tmp/test1.txt"]
-    refute_empty $state.files
+  def test_attach_command_clears_on_clear_session
+    test_file = File.join(@test_dir, "test.txt")
+    File.write(test_file, "content")
 
-    handle_prompt("/clear")
+    capture_io { handle_prompt("/attach #{test_file}") }
+    assert_includes $state.files, test_file
+
+    capture_io { handle_prompt("/clear") }
 
     assert_empty $state.files
   end
-
-
 
   def test_resume_id_loads_state_successfully
     # Create a state file first

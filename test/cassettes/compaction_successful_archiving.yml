@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://host.docker.internal:11434/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"kimi-k2.5:cloud","messages":[{"role":"user","content":"#
+        Conversation Compaction\n\nCreate a structured checkpoint summary of the conversation
+        so far. This preserves essential information while freeing context window
+        space.\n\n## Summary Format\n\nProvide a structured summary with these sections:\n\n##
+        Goal\n[Primary objective of the conversation/task]\n\n## Progress\n### Done\n-
+        [x] [Completed work item]\n\n### In Progress\n- [ ] [Current state of ongoing
+        work]\n\n## Key Decisions\n- [What was decided and why]\n\n## Critical Context\n-
+        [Files read/modified]\n- [Important data needed to continue]\n- [Open questions
+        or blockers]\n\n## Usage\n\nWhen you notice the context getting lengthy or
+        need to refocus, create a compaction summary that captures the essential state.
+        The system will:\n1. Archive older messages\n2. Store your summary as context\n3.
+        Continue from the last kept messages\n\n[user]: Hello, can you help me with
+        Ruby?\n[assistant]: Sure! What do you need help with?\n[user]: I want to learn
+        about blocks\n[assistant]: Blocks are closures in Ruby...\n[user]: Can you
+        show an example?"}],"stream":false}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 12 Mar 2026 04:40:12 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"id":"chatcmpl-176","object":"chat.completion","created":1773290412,"model":"kimi-k2.5:cloud","system_fingerprint":"fp_ollama","choices":[{"index":0,"message":{"role":"assistant","content":"##
+        Goal\nLearn about Ruby blocks, specifically seeing a concrete code example.\n\n##
+        Progress\n### Done\n- [x] Established the topic: Ruby blocks\n- [x] Initial
+        explanation: Blocks are closures in Ruby\n\n### In Progress\n- [ ] Providing
+        concrete code examples demonstrating block syntax and usage\n\n## Key Decisions\n-
+        Focus on blocks as the primary learning topic (foundational concept before
+        procs/lambdas)\n\n## Critical Context\n- **Concept introduced**: Blocks as
+        closures (anonymous functions with captured scope)\n- **Immediate need**:
+        User specifically requested \"Can you show an example?\" - requires practical
+        demonstration\n- **Suggested next steps**: Show `do...end` vs `{...}` syntax,
+        demonstrate `yield` in method definitions, or common use case with `.each`\n-
+        **No external dependencies**: No files referenced; pure educational/code explanation
+        context","reasoning":"The user is asking me to create a structured checkpoint
+        summary of the conversation so far. Looking at the conversation history provided:\n\n1.
+        User: \"Hello, can you help me with Ruby?\"\n2. Assistant: \"Sure! What do
+        you need help with?\"\n3. User: \"I want to learn about blocks\"\n4. Assistant:
+        \"Blocks are closures in Ruby...\"\n5. User: \"Can you show me an example?\"\n\nThis
+        is a very short conversation about Ruby blocks. The user wants to see an example
+        of blocks in Ruby, and the assistant has started explaining that they are
+        closures.\n\nI need to create a structured summary following the format provided:\n-
+        Goal\n- Progress (Done and In Progress)\n- Key Decisions\n- Critical Context\n\nLet
+        me analyze:\n- Goal: The user wants to learn about Ruby blocks and specifically
+        see an example.\n- Progress: \n  - Done: Initial greeting, identification
+        of topic (Ruby blocks), basic explanation started (blocks as closures).\n  -
+        In Progress: Providing a concrete example of Ruby blocks (user just asked
+        \"Can you show an example?\" so this is pending).\n- Key Decisions: None really
+        made yet, just the topic choice (Ruby blocks vs other Ruby topics).\n- Critical
+        Context: Simple Ruby block explanation pending completion; user specifically
+        asked for an example; no files mentioned; no blockers.\n\nSince this is a
+        short/simple conversation, the summary should be concise but follow the format.\n\nWait,
+        I should check if there''s any implicit context. The user is asking about
+        Ruby blocks, wants an example. That''s it.\n\nLet me draft:\n\n## Goal\nLearn
+        about Ruby blocks, specifically seeing a concrete code example.\n\n## Progress\n###
+        Done\n- [x] Established the topic: Ruby blocks\n- [x] Initial explanation:
+        Blocks are closures in Ruby\n\n### In Progress\n- [ ] Providing concrete code
+        examples of Ruby blocks\n\n## Key Decisions\n- Focus on blocks (vs. other
+        Ruby features like procs or lambdas initially)\n\n## Critical Context\n- User
+        has basic understanding that blocks are closures\n- Next step: Provide practical
+        Ruby block examples (e.g., using .each, custom methods with yield)\n- No blockers
+        or external files involved\n\nThat looks good and covers the minimal conversation
+        while preserving the essential state that the user is waiting for a block
+        example."},"finish_reason":"stop"}],"usage":{"prompt_tokens":228,"completion_tokens":652,"total_tokens":880}}
+
+        '
+  recorded_at: Thu, 12 Mar 2026 04:40:12 GMT
+recorded_with: VCR 6.4.0

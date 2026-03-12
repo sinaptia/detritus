@@ -1,0 +1,157 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://host.docker.internal:11434/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"kimi-k2.5:cloud","messages":[{"role":"user","content":"#
+        Conversation Compaction\n\nCreate a structured checkpoint summary of the conversation
+        so far. This preserves essential information while freeing context window
+        space.\n\n## Summary Format\n\nProvide a structured summary with these sections:\n\n##
+        Goal\n[Primary objective of the conversation/task]\n\n## Progress\n### Done\n-
+        [x] [Completed work item]\n\n### In Progress\n- [ ] [Current state of ongoing
+        work]\n\n## Key Decisions\n- [What was decided and why]\n\n## Critical Context\n-
+        [Files read/modified]\n- [Important data needed to continue]\n- [Open questions
+        or blockers]\n\n## Usage\n\nWhen you notice the context getting lengthy or
+        need to refocus, create a compaction summary that captures the essential state.
+        The system will:\n1. Archive older messages\n2. Store your summary as context\n3.
+        Continue from the last kept messages\n\n[user]: Message 0\n[user]: Message
+        1\n[user]: Message 2\n[user]: Message 3"}],"stream":false}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 12 Mar 2026 04:41:46 GMT
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: '{"error":{"message":"500 Internal Server Error: Internal Server Error","type":"api_error","param":null,"code":null}}
+
+        '
+  recorded_at: Thu, 12 Mar 2026 04:41:46 GMT
+- request:
+    method: post
+    uri: http://host.docker.internal:11434/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"kimi-k2.5:cloud","messages":[{"role":"user","content":"#
+        Conversation Compaction\n\nCreate a structured checkpoint summary of the conversation
+        so far. This preserves essential information while freeing context window
+        space.\n\n## Summary Format\n\nProvide a structured summary with these sections:\n\n##
+        Goal\n[Primary objective of the conversation/task]\n\n## Progress\n### Done\n-
+        [x] [Completed work item]\n\n### In Progress\n- [ ] [Current state of ongoing
+        work]\n\n## Key Decisions\n- [What was decided and why]\n\n## Critical Context\n-
+        [Files read/modified]\n- [Important data needed to continue]\n- [Open questions
+        or blockers]\n\n## Usage\n\nWhen you notice the context getting lengthy or
+        need to refocus, create a compaction summary that captures the essential state.
+        The system will:\n1. Archive older messages\n2. Store your summary as context\n3.
+        Continue from the last kept messages\n\n[user]: Message 0\n[user]: Message
+        1\n[user]: Message 2\n[user]: Message 3"}],"stream":false}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 12 Mar 2026 04:42:14 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"id":"chatcmpl-666","object":"chat.completion","created":1773290534,"model":"kimi-k2.5:cloud","system_fingerprint":"fp_ollama","choices":[{"index":0,"message":{"role":"assistant","content":"##
+        Goal\nInitialize conversation compaction framework and prepare for structured
+        context management.\n\n## Progress\n### Done\n- [x] Established compaction
+        format with Goal, Progress, Key Decisions, and Critical Context sections\n-
+        [x] Received initial placeholder messages (Message 0 through Message 3)\n\n###
+        In Progress\n- [ ] Awaiting substantive conversation content or task definition
+        to proceed beyond initialization\n\n## Key Decisions\n- Adopted structured
+        checkpoint format to preserve context window space\n- Archive policy: Older
+        messages will be replaced by this summary while maintaining continuity\n\n##
+        Critical Context\n- **Messages archived:** Message 0, Message 1, Message 2,
+        Message 3 (placeholder content)\n- **Current state:** System ready for actual
+        task input\n- **Blockers:** None; awaiting user requirements or conversation
+        substance to summarize meaningfully\n\n---\n*Compaction complete. Continue
+        from this checkpoint.*","reasoning":"The user is asking me to create a structured
+        checkpoint summary of a conversation. They''ve provided a template format
+        with sections: Goal, Progress (Done/In Progress), Key Decisions, and Critical
+        Context.\n\nHowever, looking at the conversation history provided:\n- [user]:
+        Message 0\n- [user]: Message 1\n- [user]: Message 2\n- [user]: Message 3\n\nThis
+        appears to be a template or example showing placeholder messages (Message
+        0, Message 1, etc.), not actual conversation content. There is no substantive
+        conversation to summarize yet.\n\nI should acknowledge this and either:\n1.
+        Create a template/example summary based on the placeholder messages, or\n2.
+        Ask for the actual conversation content to summarize\n\nGiven that the user
+        has provided \"Message 0\" through \"Message 3\" as placeholders, and the
+        instruction says \"Create a structured checkpoint summary of the conversation
+        so far,\" I should treat this as a demonstration/example of how to use the
+        compaction feature. \n\nSince there''s no actual content in those messages
+        (just labels), I should create a generic/template summary or indicate that
+        this is a demonstration of the format.\n\nActually, looking more carefully,
+        the user is demonstrating the compaction feature itself. They''ve shown:\n1.
+        The instruction for how to do conversation compaction\n2. Example messages
+        (Message 0-3)\n3. Now they expect me to demonstrate creating a summary\n\nSince
+        the messages are just placeholders (\"Message 0\", etc.) with no actual content,
+        I should create a placeholder/example summary that follows the format, or
+        indicate that I need actual conversation content.\n\nBut wait - the user might
+        be testing if I understand the format. Given that the messages are literally
+        labeled \"Message 0\", \"Message 1\", etc., I should treat them as if they
+        contain relevant information and create a summary based on the flow of a generic
+        conversation.\n\nActually, looking at the pattern, this seems to be the start
+        of a conversation where the user is setting up the context for future compaction.
+        They''ve shown me the format they want me to use when the time comes.\n\nBut
+        since they said \"Create a structured checkpoint summary of the conversation
+        so far\", they want me to actually do it now. With the content provided (Message
+        0-3), I have to infer or state that there''s no substantive content yet.\n\nBest
+        approach: Create a template/example summary showing how I would summarize
+        those placeholder messages, acknowledging they are placeholders, OR state
+        that the conversation appears to be at the beginning with only placeholder
+        messages.\n\nGiven the instruction context, I''ll provide a sample compaction
+        showing how I would format it, treating the messages as a hypothetical conversation
+        progression.\n\nWait, I think I understand now. The user is providing the
+        compaction framework and wants me to acknowledge it or demonstrate understanding.
+        Since there are only 4 placeholder messages with no actual content, I''ll
+        create a compact representation indicating this is the initial state.\n\nActually,
+        looking at standard behavior for this type of request: When a user provides
+        \"Message 0\" through \"Message 3\" and asks for compaction, they typically
+        want me to replace the detailed history with a summary. Since there are only
+        4 generic messages, I''ll summarize that we''re at the beginning of the conversation.\n\nLet
+        me create a summary:\n\nGoal: Initialize conversation compaction system and
+        demonstrate the format\nProgress: \n- Done: System initialization and format
+        explanation\n- In Progress: Awaiting actual conversation content or task definition\nKey
+        Decisions: \n- Using structured checkpoint format with Goal, Progress, Key
+        Decisions, Critical Context\nCritical Context:\n- Messages 0-3: Initial system
+        setup and placeholders\n- Current state: Ready to begin actual work\n\nThis
+        seems like the most logical interpretation.\n\nActually, looking at the very
+        end: \"[user]: Message 0 [user]: Message 1 [user]: Message 2 [user]: Message
+        3\" - this suggests these are the actual message contents (just labeled as
+        Message 0, 1, 2, 3).\n\nI''ll provide the compaction summary now."},"finish_reason":"stop"}],"usage":{"prompt_tokens":202,"completion_tokens":996,"total_tokens":1198}}
+
+        '
+  recorded_at: Thu, 12 Mar 2026 04:42:14 GMT
+recorded_with: VCR 6.4.0

@@ -22,7 +22,7 @@ class ChatPersistenceTest < DetritusTest
     assert_includes tool_classes, EditFile
     assert_includes tool_classes, Bash
     assert_includes tool_classes, LoadSkill
-    assert_includes tool_classes, Reflect
+    assert_includes tool_classes, InstanceEval
     assert_includes tool_classes, AttachFile
   end
 
@@ -39,8 +39,11 @@ class ChatPersistenceTest < DetritusTest
   def test_saves_chat_to_detritus_chats_as_marshal
     chat = create_chat(persist: false)
     $state.chat = chat
-    chat.add_message(role: :user, content: "Hello, this is a test message")
-    chat.add_message(role: :assistant, content: "Hello! How can I help you today?")
+    $state.current_chat_id = "test-chat-#{SecureRandom.hex(4)}"
+    
+    # Add test messages
+    $state.chat.add_message(role: :user, content: "Hello, this is a test message")
+    $state.chat.add_message(role: :assistant, content: "Hello! How can I help you today?")
 
     save_state
 
@@ -55,23 +58,30 @@ class ChatPersistenceTest < DetritusTest
     messages = content[:messages]
     assert_equal 3, messages.size # System + User + Assistant
 
-    system_message = messages.find { |m| m.role == :system }
-    assert_equal $state.instructions, system_message.content
+    system_message = messages.find { |m| m[:role] == 'system' }
+    assert_equal $state.instructions, system_message[:content]
 
-    user_message = messages.find { |m| m.role == :user }
-    assert_equal "Hello, this is a test message", user_message.content
+    user_message = messages.find { |m| m[:role] == 'user' }
+    assert_equal "Hello, this is a test message", user_message[:content]
 
-    assistant_message = messages.find { |m| m.role == :assistant }
-    assert_equal "Hello! How can I help you today?", assistant_message.content
+    assistant_message = messages.find { |m| m[:role] == 'assistant' }
+    assert_equal "Hello! How can I help you today?", assistant_message[:content]
   end
 
   def test_save_and_load_round_trip_preserves_messages_without_duplicates
-    # Save a chat
+    
+    # Save a chat using our interface
     chat = create_chat(persist: false)
     $state.chat = chat
-    chat.add_message(role: :user, content: "First message")
-    chat.add_message(role: :assistant, content: "First response")
-    chat.add_message(role: :user, content: "Second message")
+    
+    chat = create_chat(persist: false)
+    $state.chat = chat
+    $state.current_chat_id = "round-trip-#{SecureRandom.hex(4)}"
+    
+    # Add messages
+    $state.chat.add_message(role: :user, content: "First message")
+    $state.chat.add_message(role: :assistant, content: "First response")
+    $state.chat.add_message(role: :user, content: "Second message")
 
     original_message_count = chat.messages.size
     save_state
@@ -83,7 +93,7 @@ class ChatPersistenceTest < DetritusTest
     assert_equal original_message_count, loaded_chat.messages.size
 
     # Should have exactly one system message (no duplicates)
-    system_messages = loaded_chat.messages.select { |m| m.role == :system }
+    system_messages = loaded_chat.messages.select { |m| m.role.to_s == 'system' }
     assert_equal 1, system_messages.size
 
     # All messages should be restored
@@ -108,7 +118,7 @@ class ChatPersistenceTest < DetritusTest
     output = capture_io { result = load_state(chat_id) }.first
 
     assert_nil result
-    assert_includes output, "failed to load state"
+    assert_includes output, "Failed to load state"
   end
 
   def test_load_state_handles_corrupted_marshal_data
@@ -121,7 +131,7 @@ class ChatPersistenceTest < DetritusTest
     output = capture_io { result = load_state(chat_id) }.first
 
     assert_nil result
-    assert_includes output, "failed to load state"
+    assert_includes output, "Failed to load state"
   end
 
   private

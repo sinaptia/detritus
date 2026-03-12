@@ -14,9 +14,20 @@ http_interactions:
         surrounding lines to make it unique."},"new":{"type":"string","description":"The
         lines of text you want to use as replacement."},"create":{"type":"boolean","description":"Optional
         flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"bash","description":"Run
-        shell command","parameters":{"type":"object","properties":{"command":{"type":"string","description":"Command"}},"required":["command"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"web_search","description":"useful
-        for searching the web","parameters":{"type":"object","properties":{"query":{"type":"string","description":"The
-        search query"}},"required":["query"],"additionalProperties":false,"strict":true}}}]}'
+        shell command","parameters":{"type":"object","properties":{"command":{"type":"string","description":"Command"}},"required":["command"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"load_skill","description":"Loads
+        a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade:
+        local .detritus/skills/ takes precedence over global ~/.detritus/skills/.
+        The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2,
+        etc (positional args).","parameters":{"type":"object","properties":{"name":{"type":"string","description":"Name
+        of the skill to load (e.g., ''research'', ''todo'')"},"arguments":{"type":"string","description":"Arguments
+        for interpolation, space-separated (e.g., ''arg1 arg2'')"}},"required":["name","arguments"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"instance_eval","description":"Evaluates
+        Ruby code within the agent''s own runtime context. Enables: introspection
+        and manipulation of internal state, sending commands to yourself, manipulating
+        the context window. You can think if detritus.rb as a DSL to itself. Ensure
+        to read detritus.rb before creating the code to execute","parameters":{"type":"object","properties":{"code":{"type":"string","description":"Ruby
+        code to execute"}},"required":["code"],"additionalProperties":false,"strict":true}}},{"type":"function","function":{"name":"attach_file","description":"Attach
+        files: adds files as an attachment to the next message sent to the llm. useful
+        for pdf, images and other binary data","parameters":{"type":"object","properties":{"path":{"type":"string","description":"Path"}},"required":["path"],"additionalProperties":false,"strict":true}}}]}'
     headers:
       User-Agent:
       - Faraday v2.14.1
@@ -34,12 +45,12 @@ http_interactions:
       Content-Type:
       - application/json
       Date:
-      - Sat, 14 Feb 2026 22:09:49 GMT
+      - Thu, 12 Mar 2026 04:57:05 GMT
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        eyJpZCI6ImNoYXRjbXBsLTI1MCIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3NzExMDY5ODksIm1vZGVsIjoia2ltaS1rMi41OmNsb3VkIiwic3lzdGVtX2ZpbmdlcnByaW50IjoiZnBfb2xsYW1hIiwiY2hvaWNlcyI6W3siaW5kZXgiOjAsIm1lc3NhZ2UiOnsicm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOiIgSGkgdGhlcmUhIPCfkYsgSG93IGNhbiBJIGhlbHAgeW91IHRvZGF5PyIsInJlYXNvbmluZyI6IiBUaGUgdXNlciB3YW50cyBtZSB0byBzYXkgXCJoaVwiLiBUaGlzIGlzIGEgc2ltcGxlIHJlcXVlc3QsIEkgY2FuIGp1c3QgcmVzcG9uZCB3aXRoIGEgZ3JlZXRpbmcuIn0sImZpbmlzaF9yZWFzb24iOiJzdG9wIn1dLCJ1c2FnZSI6eyJwcm9tcHRfdG9rZW5zIjoyMTMsImNvbXBsZXRpb25fdG9rZW5zIjozNywidG90YWxfdG9rZW5zIjoyNTB9fQo=
-  recorded_at: Sat, 14 Feb 2026 22:09:49 GMT
+        eyJpZCI6ImNoYXRjbXBsLTE3Iiwib2JqZWN0IjoiY2hhdC5jb21wbGV0aW9uIiwiY3JlYXRlZCI6MTc3MzI5MTQyNCwibW9kZWwiOiJraW1pLWsyLjU6Y2xvdWQiLCJzeXN0ZW1fZmluZ2VycHJpbnQiOiJmcF9vbGxhbWEiLCJjaG9pY2VzIjpbeyJpbmRleCI6MCwibWVzc2FnZSI6eyJyb2xlIjoiYXNzaXN0YW50IiwiY29udGVudCI6IkhpIHRoZXJlISDwn5GLIEhvdyBjYW4gSSBoZWxwIHlvdSB0b2RheT8iLCJyZWFzb25pbmciOiJUaGUgdXNlciB3YW50cyBtZSB0byBzYXkgaGkuIFRoaXMgaXMgYSBzaW1wbGUgcmVxdWVzdCB0aGF0IGRvZXNuJ3QgcmVxdWlyZSBhbnkgdG9vbHMgLSBqdXN0IGEgZnJpZW5kbHkgZ3JlZXRpbmcuIn0sImZpbmlzaF9yZWFzb24iOiJzdG9wIn1dLCJ1c2FnZSI6eyJwcm9tcHRfdG9rZW5zIjo0MzgsImNvbXBsZXRpb25fdG9rZW5zIjozOCwidG90YWxfdG9rZW5zIjo0NzZ9fQo=
+  recorded_at: Thu, 12 Mar 2026 04:57:05 GMT
 recorded_with: VCR 6.4.0

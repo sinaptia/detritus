@@ -2,10 +2,10 @@
 
 require_relative "../test_helper"
 
-class ReflectToolTest < DetritusTest
+class InstanceEvalToolTest < DetritusTest
   def setup
     super
-    @tool = Reflect.new
+    @tool = InstanceEval.new
   end
 
   def test_executes_simple_code_and_returns_result

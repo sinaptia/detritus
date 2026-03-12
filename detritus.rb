@@ -9,8 +9,12 @@ gemfile do
   gem "yaml"
   gem "json"
   gem "fileutils"
+  gem "set"
+  gem "tempfile"
+  gem "securerandom"
 end
 
+# ===  Skills  ===
 def find_skills(name)
   [".detritus/skills", "#{ENV["HOME"]}/.detritus/skills"]
     .flat_map { |dir| Dir.glob(File.join(File.expand_path(dir), "#{name}/SKILL.md")) }
@@ -29,44 +33,65 @@ def list_skills
 end
 
 # === Chat creation and persistence methods ===
-def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadSkill, Reflect, AttachFile], persist: $state.persist_chat)
+def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadSkill, InstanceEval, AttachFile], persist: $state.persist_chat)
   chat = RubyLLM::Chat.new(model: $state.model, provider: $state.provider)
   chat.with_instructions(instructions) if instructions
   chat.on_end_message do |msg|
     track_metrics(msg)
     save_state if persist
-    $stderr.print "\a" if $state.notification # Terminal bell when response complete
+    compact_conversation
   end
-  chat.on_tool_result { print status_line }
+  chat.on_tool_result { print "\n#{status_line}\n" }
   chat.with_tools(*tools)
 end
 
 def track_metrics(msg)
   return unless msg
-  # Current values (context window view for status)
   $state.session[:tokens_in] = msg.input_tokens.to_i
   $state.session[:tokens_out] = msg.output_tokens.to_i
+  $state.session[:tokens] = $state.session[:tokens_in] + $state.session[:tokens_out]
   $state.session[:tokens_cached] = msg.cached_tokens.to_i
-
-  # Accumulated totals (for session analysis/comparison)
   $state.session[:accumulated_tokens_in] += msg.input_tokens.to_i
   $state.session[:accumulated_tokens_out] += msg.output_tokens.to_i
   $state.session[:accumulated_tokens_cached] += msg.cached_tokens.to_i
-
-  $state.session[:messages] += 1
-  $state.session[:tool_calls] += 1 if msg.tool_call?
 end
 
-def status_line
-  "#{$state.model} " \
-  "[#{(($state.session[:tokens_in] + $state.session[:tokens_out]) / 1000.0).round(1)}K]" \
-  "[#{($state.session[:tokens_cached] / 1000.0).round(1)}K]" \
-  " #{File.basename(ENV["HOST_PWD"]) if ENV["HOST_PWD"]} (#{`git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip}) -> "
+def status_line = "#{$state.model} [#{($state.session[:tokens].to_f / 1000.0).round(1)}K]"
+
+# ===  Context Compaction  ===
+def compact_conversation(focus: nil)
+  return false unless $state.compaction
+  return false unless $state.compaction.fetch("enabled", false)
+  return false unless $state.chat.messages.count > $state.compaction.fetch("keep_message_count", 6)
+  return false unless $state.session[:tokens] >= $state.compaction.fetch("trigger_tokens", 80_000)
+
+  archive_message_range = (2...-$state.compaction.fetch("keep_message_count", 6))
+
+  messages = $state.chat.messages.map { |m| "[#{m.role}]: #{m.content}" }[archive_message_range]
+
+  instructions = LoadSkill.new.execute(name: "compact") || "Summarize the key points and decisions."
+  instructions += "\n\nFocus: #{focus}" if focus
+
+  prompt = "#{instructions}\n\n#{messages.join("\n")}"
+  compactor = RubyLLM.chat(model: $state.model, provider: $state.provider, assume_model_exists: true)
+  summary = compactor.ask(prompt).content
+
+  archive_path = ".detritus/archive/#{SecureRandom.uuid}"
+  FileUtils.mkdir_p(".detritus/archive")
+  File.write(archive_path, Marshal.dump({
+    messages: messages,
+    timestamp: Time.now,
+    chat_id: $state.current_chat_id
+  }))
+
+  $state.chat.messages[archive_message_range] = RubyLLM::Message.new(role: :system, content: "## Previous context\n\n#{summary}\n\nArchive: `#{archive_path}`")
+  $state.session[:tokens_in] = $state.session[:tokens_out] = $state.session[:tokens] = 0
+  puts "[✓ Compacted ]"
+  true
 end
 
 def reset_session
   $state.session = {tokens_in: 0, tokens_out: 0, tokens_cached: 0, accumulated_tokens_in: 0, accumulated_tokens_out: 0, accumulated_tokens_cached: 0, tool_calls: 0, messages: 0}
-  $state.files = []
 end
 
 def save_state
@@ -75,10 +100,10 @@ def save_state
     id: $state.current_chat_id,
     model: $state.model,
     provider: $state.provider,
-    messages: $state.chat.messages,
+    messages: $state.chat.messages.map { |m| {role: m.role.to_s, content: m.content, tool_calls: m.tool_calls} },
     session: $state.session
   }
-  File.write(".detritus/states/#{$state.current_chat_id}", Marshal.dump(data))
+  File.write(".detritus/states/#{$state.current_chat_id}", Marshal.dump(data), mode: "wb")
 end
 
 def load_state(id)
@@ -87,25 +112,23 @@ def load_state(id)
 
   data = Marshal.load(File.read(file))
 
-  # Restore session metrics if they exist
-  if data[:session]
-    $state.session = data[:session]
-    $state.model = data[:model]
-    $state.provider = data[:provider]
-  end
+  $state.session = data[:session] || reset_session
+  $state.model = data[:model]
+  $state.provider = data[:provider]
 
   chat = create_chat(instructions: nil, persist: false)
-  data[:messages].each do |msg|
-    chat.add_message(msg)
-    content = msg.respond_to?(:content) ? msg.content : msg[:content]
-    puts content
-  end
-  puts "[✓ State resumed: #{id} (#{data[:messages].size} messages)]"
 
+  # Restore messages - support both :messages (new) and :conversation (old)
+  raw_messages = data[:messages] || []
+  raw_messages.each do |m|
+    puts "#{m[:role]}: #{m[:content]}"
+    chat.add_message(role: m[:role], content: m[:content], tool_calls: m[:tool_calls])
+  end
+  $state.current_chat_id = id
+  puts "[✓ State resumed: #{id} (#{chat.messages.size} messages)]"
   chat
 rescue => e
-  puts "[✗ failed to load state: #{e.message}]"
-  nil
+  puts "[✗ Failed to load state: #{e.class.name} - #{e.message} : #{e.backtrace.first}]"
 end
 
 # ===  Tools ===
@@ -125,10 +148,9 @@ class EditFile < RubyLLM::Tool
     FileUtils.touch(path) if create
     file_content = File.read(path)
     if file_content.include?(old)
-      puts unified_diff(path, old, new)
-
+      puts diff(old, new)
       content = file_content.sub(old, new)
-      bytes = File.write(path, content)
+      File.write(path, content)
       "ok"
     else
       {error: "<old> text not found in file. You might need to re-read the file"}
@@ -137,27 +159,18 @@ class EditFile < RubyLLM::Tool
     {error: "#{e.class.name} - #{e.message}"}
   end
 
-  def unified_diff(path, old, new)
-    require "tempfile"
+  def diff(old, new)
     old_file = Tempfile.new("old")
-    new_file = Tempfile.new("new")
     old_file.write(old)
-    new_file.write(new)
     old_file.close
+    new_file = Tempfile.new("new")
+    new_file.write(new)
     new_file.close
-
     output = `diff --color=always -u -U 3 #{old_file.path} #{new_file.path} 2>/dev/null || true`
+    output.empty? ? "\e[33m~ (no changes)\e[0m" : output.lines[3..].reject { |line| line.include?("No newline at end of file") }.join
+  ensure
     old_file.unlink
     new_file.unlink
-
-    if output.empty?
-      puts "\e[33m~ #{path} (no changes)\e[0m"
-    else
-      lines = output.lines
-      lines.shift(3)  # Remove ---, +++, and @@ hunk header lines
-      lines = lines.reject { |line| line.include?("No newline at end of file") }
-      puts lines.join
-    end
   end
 end
 
@@ -168,7 +181,10 @@ class Bash < RubyLLM::Tool
   def execute(command: nil, **rest)
     return {error: "Missing required parameter: command"} if command.nil? || command.empty?
     puts "\n{Bash #{command[0..100]}...}"
-    Bundler.with_unbundled_env { `#{command}` }
+    require "open3"
+    stdout, stderr, status = Bundler.with_unbundled_env { Open3.capture3(command) }
+    return {error: "Exit code #{status.exitstatus}", stderr: stderr} unless status.success?
+    stdout
   rescue => e
     {error: e.message}
   end
@@ -201,13 +217,13 @@ class LoadSkill < RubyLLM::Tool
   end
 end
 
-class Reflect < RubyLLM::Tool
+class InstanceEval < RubyLLM::Tool
   param :code, desc: "Ruby code to execute", required: true
   description "Evaluates Ruby code within the agent's own runtime context. Enables: introspection and manipulation of internal state, sending commands to yourself, manipulating the context window. You can think if detritus.rb as a DSL to itself. Ensure to read detritus.rb before creating the code to execute"
 
   def execute(code: nil)
     return {error: "Missing required parameter: code"} if code.nil?
-    puts "{Reflect #{code[0..100]}...}"
+    puts "{InstanceEval #{code[0..100]}...}"
     result = eval(code, TOPLEVEL_BINDING)
     result.inspect
   rescue Exception => e
@@ -216,12 +232,12 @@ class Reflect < RubyLLM::Tool
 end
 
 class AttachFile < RubyLLM::Tool
-  description "Attach file"
+  description "Attach files: adds files as an attachment to the next message sent to the llm. useful for pdf, images and other binary data"
   param :path, desc: "Path", required: true
   def execute(path: nil)
-    return {error: "File `#{path}` doesn't exist?"} unless path && File.exist?(path)
+    return {error: "File Not Found: #{path} doesn't exist?"} unless path && File.exist?(path)
     $state.files << path
-    {ok: path}
+    "ok"
   end
 end
 
@@ -233,13 +249,15 @@ def handle_prompt(prompt)
   case prompt
   when "/new", "/clear"
     reset_session
+    $state.files = Set.new
     $state.chat = create_chat
     puts "\n[✓ context cleared]"
   when %r{^/attach\s+(.+)}
     $state.files << $1.strip
     puts "[✓ #{$1.strip}]"
+  when /^\/compact\s*(.*)/
+    compact_conversation focus: $1&.strip
   when %r{^/resume\s+(.+)}
-    $state.current_chat_id = $1
     $state.chat = load_state($1) || $state.chat
   when %r{^!(.+)\z}m
     puts(out = `#{$1}`)
@@ -249,42 +267,42 @@ def handle_prompt(prompt)
     $state.model = $2
     $state.chat.with_model($state.model, provider: $state.provider)
     puts "[✓ Switched to #{$state.provider}/#{$state.model}]"
-  when %r{^/(\w+)\s*(.*)}
-    (rendered_prompt = LoadSkill.new.execute(name: $1, arguments: $2)) && stream_response(rendered_prompt)
+  when %r{^/([\w-]+)\s*(.*)}
+    rendered_prompt = LoadSkill.new.execute(name: $1, arguments: $2)
+    complete(rendered_prompt) if rendered_prompt
   else
-    stream_response(prompt)
+    complete(prompt)
   end
 end
 
-def stream_response(prompt)
+def complete(prompt)
   if $state.files&.any?
-    content = RubyLLM::Content.new(prompt, $state.files)
-    $state.chat.add_message(role: :user, content: content)
+    $state.chat.add_message(role: :user, content: prompt, with: $state.files.map(&:dup))
+    $state.files = Set.new
   else
     $state.chat.add_message(role: :user, content: prompt)
   end
+
   $state.chat.complete do |chunk|
     $stderr.print "\e[90m#{chunk.thinking.text}\e[0m" if chunk.thinking&.text
     print chunk.content if chunk.content&.strip
   end
   puts
 rescue => e
-  puts "\n[✗ Unexpected error: #{e.class} - #{e.message}]"
+  puts "\n[✗ Unexpected error: #{e.class} - #{e.message} : #{e.backtrace.first}]"
 ensure
-  $state.files.clear
+  $stderr.print "\a" if $state.use_terminal_bell
 end
 
+# === Configuration (global config combined with local project config) ===
 def configure(resume_id: nil)
-  # === Configuration (global config combined with local project config) ===
   global_config = File.exist?(File.expand_path("~/.detritus/config.yml")) ? YAML.load_file(File.expand_path("~/.detritus/config.yml")) : {}
   local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
   $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
 
   # Load system skill with proper interpolation
   system_skill_content = LoadSkill.new.execute(name: "system")
-  if system_skill_content.is_a?(Hash) && system_skill_content[:error]
-    raise TypeError, "System skill not found"
-  end
+  raise "System skill not found" if system_skill_content.is_a?(Hash) && system_skill_content[:error]
   $state.instructions = system_skill_content.gsub("%%{available_skills}%%", list_skills)
 
   # === RubyLLM configuration ===
@@ -309,9 +327,9 @@ def configure(resume_id: nil)
   # === Initial State Setup ===
   $state.persist_chat = !ENV["DETRITUS_NO_PERSIST"]
   reset_session
+  $state.files = Set.new
   $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
   $state.chat = create_chat
-  $state.chat.with_tool(LoadSkill)
 end
 
 configure
@@ -323,12 +341,14 @@ if ARGV.first ## non-interactive mode
 else
   $state.mode = :interactive
   loop do # Interactive REPL
-    input = Reline.readline(status_line, true)
+    pwd = ENV["HOST_PWD"] ? File.basename(ENV["HOST_PWD"]) : Dir.pwd
+    branch = `git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip
+    input = Reline.readline("#{status_line} #{pwd} (#{branch}) -> ", true)
     break if input.nil? # Ctrl+D to exit
     next if input.empty?
     handle_prompt(input)
   rescue => e
-    puts "\n[✗ Error: #{e.class} - #{e.message}]"
+    puts "\n[✗ Error: #{e.class} - #{e.message} : #{e.backtrace.first}]"
     next
   rescue Interrupt
   end

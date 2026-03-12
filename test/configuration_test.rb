@@ -110,7 +110,7 @@ class ConfigurationTest < DetritusTest
     assert_match "Another test skill", $state.instructions
   end
 
-  def test_missing_system_skill_raises_type_error
+  def test_missing_system_skill_raises_error
     # Remove the system skill file that test_helper creates
     system_skill_path = File.join(@test_dir, ".detritus", "skills", "system", "SKILL.md")
     File.delete(system_skill_path)
@@ -118,9 +118,8 @@ class ConfigurationTest < DetritusTest
 
     create_config({"provider" => "ollama", "model" => "llama3"})
 
-    # configure tries to read system skill but find_skill returns nil
-    # File.read(nil) raises TypeError
-    assert_raises(TypeError) do
+    # configure raises RuntimeError when system skill not found
+    assert_raises(RuntimeError) do
       configure
     end
   end

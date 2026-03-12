@@ -36,11 +36,10 @@ class BashToolTest < DetritusTest
   end
 
   def test_handles_non_zero_exit_code_gracefully
-    # Commands that fail still return their output (or empty string)
+    # Commands that fail return error with stderr
     result = @tool.execute(command: "exit 1")
 
-    # Non-zero exit doesn't crash, returns empty output from failed command
-    assert_equal "", result
+    assert_equal({error: "Exit code 1", stderr: ""}, result)
   end
 
   def test_returns_error_for_empty_command
