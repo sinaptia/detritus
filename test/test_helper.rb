@@ -62,7 +62,7 @@ def create_test_dir
   FileUtils.mkdir_p(File.join(dir, ".detritus", "skills", "system"))
   # Create a basic system skill file for tests with all substitution markers
   # Create a basic system skill file for tests with all substitution markers
-  File.write(File.join(dir, ".detritus", "skills", "system", "SKILL.md"), "---\nname: system\ndescription: System skill\n---\n\n%%{available_skills}%%\n")
+  File.write(File.join(dir, ".detritus", "skills", "system", "SKILL.md"), "---\nname: system\ndescription: System skill\n---\n\n%%{list_skills}%%\n")
   dir
 end
 
@@ -73,6 +73,7 @@ class DetritusTest < Minitest::Test
     $stdout = StringIO.new unless ENV["DEBUG"]
     @test_dir = create_test_dir
     Dir.chdir(@test_dir)
+    $state.files.clear if defined?($state) && $state
   end
 
   def teardown

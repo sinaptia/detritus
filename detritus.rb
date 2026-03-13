@@ -100,7 +100,9 @@ def save_state
     id: $state.current_chat_id,
     model: $state.model,
     provider: $state.provider,
-    messages: $state.chat.messages.map { |m| {role: m.role.to_s, content: m.content, tool_calls: m.tool_calls} },
+    messages: $state.chat.messages
+      .select { |m| m.content || m.tool_calls }
+      .map { |m| {role: m.role.to_s, content: m.content, tool_calls: m.tool_calls} },
     session: $state.session
   }
   File.write(".detritus/states/#{$state.current_chat_id}", Marshal.dump(data), mode: "wb")
@@ -184,7 +186,7 @@ class Bash < RubyLLM::Tool
     require "open3"
     stdout, stderr, status = Bundler.with_unbundled_env { Open3.capture3(command) }
     return {error: "Exit code #{status.exitstatus}", stderr: stderr} unless status.success?
-    stdout
+    stdout.to_s
   rescue => e
     {error: e.message}
   end
@@ -303,7 +305,7 @@ def configure(resume_id: nil)
   # Load system skill with proper interpolation
   system_skill_content = LoadSkill.new.execute(name: "system")
   raise "System skill not found" if system_skill_content.is_a?(Hash) && system_skill_content[:error]
-  $state.instructions = system_skill_content.gsub("%%{available_skills}%%", list_skills)
+  $state.instructions = system_skill_content.gsub("%%{list_skills}%%", list_skills)
 
   # === RubyLLM configuration ===
   RubyLLM.configure do |c|

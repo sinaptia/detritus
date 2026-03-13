@@ -1,0 +1,50 @@
+# Testing in Detritus
+
+## Philosophy
+
+1. **Test outcomes, not implementation** - EG: Verify file contents after EditFile, not internal calls
+2. **Real behavior with VCR** - Record actual API responses, no mocks
+3. **Isolation** - Each test gets fresh temp directory, no shared state
+4. **Happy paths focus** - Test successful execution, not every error case
+
+## Running Tests
+
+```bash
+rake test                        # Run all tests
+ruby test/some_test.rb           # Run a specific test file
+ruby test/some_test.rb -n test_x # Run a specific test method
+```
+
+## Test Structure
+
+```
+test/
+  test_helper.rb          # Setup, VCR config, base class
+  cassettes/              # VCR recordings for API calls
+  fixtures/               # Test data (prompts, scripts, configs, chats)
+  *_test.rb               # Test files
+```
+
+## Writing Tests
+
+Inherit from `DetritusTest` for automatic temp directory isolation. Each test gets a fresh temp directory with `.detritus` structure, and cleanup is automatic.
+
+**Available helpers**:
+- `create_prompt(name, content)` - Creates `.detritus/prompts/{name}.txt`
+- `create_script(name, content, executable: true)` - Creates `.detritus/scripts/{name}`
+- `create_config(config_hash)` - Creates `.detritus/config.yml`
+- `with_vcr(cassette_name) { }` - Wraps block with VCR recording/playback
+
+## Test Mode
+
+`ENV["DETRITUS_TEST"]` causes detritus.rb to skip REPL initialization while still loading all classes and methods.
+
+## VCR for API Calls
+
+Tests that make real API calls use VCR to record and replay HTTP interactions.
+
+**Recording new cassettes**:
+1. Ensure API keys are set in environment
+2. Delete the cassette file (if re-recording)
+3. Run the test - VCR records the interaction
+4. Subsequent runs replay from cassette
