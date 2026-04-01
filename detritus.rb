@@ -3,7 +3,7 @@ require "bundler/inline"
 
 gemfile do
   source "https://rubygems.org"
-  gem "ruby_llm", "~> 1.11"
+  gem "ruby_llm", "~> 1.13"
   gem "reline"
   gem "ostruct"
   gem "yaml"
@@ -18,7 +18,7 @@ end
 def find_skills(name)
   [".detritus/skills", "#{ENV["HOME"]}/.detritus/skills"]
     .flat_map { |dir| Dir.glob(File.join(File.expand_path(dir), "#{name}/SKILL.md")) }
-    .uniq { |path| File.basename(path) }
+    .uniq { |path| File.basename(File.dirname(path)) }
 end
 
 def list_skills
@@ -41,7 +41,7 @@ def create_chat(instructions: $state.instructions, tools: [EditFile, Bash, LoadS
     save_state if persist
     compact_conversation
   end
-  chat.on_tool_result { print "\n#{status_line}\n" }
+  chat.on_tool_result { $stderr.print "\n#{status_line}\n" }
   chat.with_tools(*tools)
 end
 
@@ -69,7 +69,8 @@ def compact_conversation(focus: nil)
 
   messages = $state.chat.messages.map { |m| "[#{m.role}]: #{m.content}" }[archive_message_range]
 
-  instructions = LoadSkill.new.execute(name: "compact") || "Summarize the key points and decisions."
+  instructions = LoadSkill.new.execute(name: "compact")
+  raise "Compact skill not found" if instructions.is_a?(Hash)
   instructions += "\n\nFocus: #{focus}" if focus
 
   prompt = "#{instructions}\n\n#{messages.join("\n")}"
@@ -86,7 +87,7 @@ def compact_conversation(focus: nil)
 
   $state.chat.messages[archive_message_range] = RubyLLM::Message.new(role: :system, content: "## Previous context\n\n#{summary}\n\nArchive: `#{archive_path}`")
   $state.session[:tokens_in] = $state.session[:tokens_out] = $state.session[:tokens] = 0
-  puts "[✓ Compacted ]"
+  $stderr.puts "[✓ Compacted ]"
   true
 end
 
@@ -127,10 +128,10 @@ def load_state(id)
     chat.add_message(role: m[:role], content: m[:content], tool_calls: m[:tool_calls])
   end
   $state.current_chat_id = id
-  puts "[✓ State resumed: #{id} (#{chat.messages.size} messages)]"
+  $stderr.puts "[✓ State resumed: #{id} (#{chat.messages.size} messages)]"
   chat
 rescue => e
-  puts "[✗ Failed to load state: #{e.class.name} - #{e.message} : #{e.backtrace.first}]"
+  $stderr.puts "[✗ Failed to load state: #{e.class.name} - #{e.message} : #{e.backtrace.first}]"
 end
 
 # ===  Tools ===
@@ -145,12 +146,12 @@ class EditFile < RubyLLM::Tool
     missing = [(:path if path.nil?), (:old if old.nil?), (:new if new.nil?)].compact
     return {error: "Missing required parameters: #{missing.join(", ")}"} if missing.any?
 
-    puts "\n{FileEdit path: #{path}}"
+    $stderr.puts "\n{FileEdit path: #{path}}"
 
     FileUtils.touch(path) if create
     file_content = File.read(path)
     if file_content.include?(old)
-      puts diff(old, new)
+      $stderr.puts diff(old, new)
       content = file_content.sub(old, new)
       File.write(path, content)
       "ok"
@@ -182,7 +183,7 @@ class Bash < RubyLLM::Tool
 
   def execute(command: nil, **rest)
     return {error: "Missing required parameter: command"} if command.nil? || command.empty?
-    puts "\n{Bash #{command[0..100]}...}"
+    $stderr.puts "\n{Bash #{command[0..100]}...}"
     require "open3"
     stdout, stderr, status = Bundler.with_unbundled_env { Open3.capture3(command) }
     return {error: "Exit code #{status.exitstatus}", stderr: stderr} unless status.success?
@@ -212,7 +213,7 @@ class LoadSkill < RubyLLM::Tool
     args.each_with_index do |arg, i|
       interpolated = interpolated.gsub("$#{i + 1}", arg)
     end
-    puts "\n{LoadSkill #{name} #{arguments[0..100]}}" unless ENV["DETRITUS_TEST"]
+    $stderr.puts "\n{LoadSkill #{name} #{arguments[0..100]}}" unless ENV["DETRITUS_TEST"]
     interpolated
   rescue => e
     {error: "#{e.class.name} - #{e.message}"}
@@ -225,7 +226,7 @@ class InstanceEval < RubyLLM::Tool
 
   def execute(code: nil)
     return {error: "Missing required parameter: code"} if code.nil?
-    puts "{InstanceEval #{code[0..100]}...}"
+    $stderr.puts "{InstanceEval #{code[0..100]}...}"
     result = eval(code, TOPLEVEL_BINDING)
     result.inspect
   rescue Exception => e
@@ -253,12 +254,20 @@ def handle_prompt(prompt)
     reset_session
     $state.files = Set.new
     $state.chat = create_chat
-    puts "\n[✓ context cleared]"
+    $stderr.puts "\n[✓ context cleared]"
   when %r{^/attach\s+(.+)}
     $state.files << $1.strip
-    puts "[✓ #{$1.strip}]"
+    $stderr.puts "[✓ #{$1.strip}]"
   when /^\/compact\s*(.*)/
     compact_conversation focus: $1&.strip
+  when "/scrub"
+    if $state.chat.messages.any?
+      $state.chat.messages.pop
+      save_state if $state.persist_chat
+      $stderr.puts "[✓ Last message scrubbed]"
+    else
+      $stderr.puts "[! No messages to scrub]"
+    end
   when %r{^/resume\s+(.+)}
     $state.chat = load_state($1) || $state.chat
   when %r{^!(.+)\z}m
@@ -268,7 +277,7 @@ def handle_prompt(prompt)
     $state.provider = $1
     $state.model = $2
     $state.chat.with_model($state.model, provider: $state.provider)
-    puts "[✓ Switched to #{$state.provider}/#{$state.model}]"
+    $stderr.puts "[✓ Switched to #{$state.provider}/#{$state.model}]"
   when %r{^/([\w-]+)\s*(.*)}
     rendered_prompt = LoadSkill.new.execute(name: $1, arguments: $2)
     complete(rendered_prompt) if rendered_prompt
@@ -279,7 +288,7 @@ end
 
 def complete(prompt)
   if $state.files&.any?
-    $state.chat.add_message(role: :user, content: prompt, with: $state.files.map(&:dup))
+    $state.chat.add_message(role: :user, content: RubyLLM::Content.new(prompt, $state.files.to_a))
     $state.files = Set.new
   else
     $state.chat.add_message(role: :user, content: prompt)
@@ -290,8 +299,10 @@ def complete(prompt)
     print chunk.content if chunk.content&.strip
   end
   puts
+rescue TypeError => e
+  $stderr.puts "\n[⚠ Streaming error (provider issue): #{e.message}]"
 rescue => e
-  puts "\n[✗ Unexpected error: #{e.class} - #{e.message} : #{e.backtrace.first}]"
+  $stderr.puts "\n[✗ Unexpected error: #{e.class} - #{e.message} : #{e.backtrace.first}]"
 ensure
   $stderr.print "\a" if $state.use_terminal_bell
 end
@@ -300,7 +311,8 @@ end
 def configure(resume_id: nil)
   global_config = File.exist?(File.expand_path("~/.detritus/config.yml")) ? YAML.load_file(File.expand_path("~/.detritus/config.yml")) : {}
   local_config = File.exist?(".detritus/config.yml") ? YAML.load_file(".detritus/config.yml") : {}
-  $state = OpenStruct.new((global_config || {}).merge(local_config || {}))
+  $state = OpenStruct.new({}.merge((global_config || {})).merge((local_config || {})))
+  $state.files = Set.new
 
   # Load system skill with proper interpolation
   system_skill_content = LoadSkill.new.execute(name: "system")
@@ -327,9 +339,14 @@ def configure(resume_id: nil)
   end
 
   # === Initial State Setup ===
+  # Disable auto-compaction if compact skill not available
+  if $state.compaction && find_skills("compact").empty?
+    $stderr.puts "[⚠ Auto-compaction disabled: compact skill not found]"
+    $state.compaction["enabled"] = false
+  end
+  
   $state.persist_chat = !ENV["DETRITUS_NO_PERSIST"]
   reset_session
-  $state.files = Set.new
   $state.current_chat_id = Time.now.strftime("%Y%m%d_%H%M%S")
   $state.chat = create_chat
 end
@@ -350,9 +367,9 @@ else
     next if input.empty?
     handle_prompt(input)
   rescue => e
-    puts "\n[✗ Error: #{e.class} - #{e.message} : #{e.backtrace.first}]"
+    $stderr.puts "\n[✗ Error: #{e.class} - #{e.message} : #{e.backtrace.first}]"
     next
   rescue Interrupt
   end
-  puts "[✓ Bye!]"
+  $stderr.puts "[✓ Bye!]"
 end

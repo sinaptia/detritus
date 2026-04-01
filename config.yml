@@ -21,6 +21,7 @@ provider: ollama
 #model: gemini-2.5-flash:cloud
 model: kimi-k2.5:cloud
 #model: glm-5:cloud
+#model: qwen3.5:cloud
 api_base: http://host.docker.internal:11434/v1
 
 # LMStudio or other OpenAI-compatible

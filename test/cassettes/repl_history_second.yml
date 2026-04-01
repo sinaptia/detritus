@@ -15,9 +15,20 @@ http_interactions:
         surrounding lines to make it unique."},"new":{"type":"STRING","description":"The
         lines of text you want to use as replacement."},"create":{"type":"BOOLEAN","description":"Optional
         flag to create the file if it doesn''t exist."}},"required":["path","old","new","create"]}},{"name":"bash","description":"Run
-        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"web_search","description":"useful
-        for searching the web","parameters":{"type":"OBJECT","properties":{"query":{"type":"STRING","description":"The
-        search query"}},"required":["query"]}}]}]}'
+        shell command","parameters":{"type":"OBJECT","properties":{"command":{"type":"STRING","description":"Command"}},"required":["command"]}},{"name":"load_skill","description":"Loads
+        a skill from a SKILL.md file with YAML frontmatter. Skills follow the cascade:
+        local .detritus/skills/ takes precedence over global ~/.detritus/skills/.
+        The skill body has variables interpolated: $ARGUMENTS (all args), $1, $2,
+        etc (positional args).","parameters":{"type":"OBJECT","properties":{"name":{"type":"STRING","description":"Name
+        of the skill to load (e.g., ''research'', ''todo'')"},"arguments":{"type":"STRING","description":"Arguments
+        for interpolation, space-separated (e.g., ''arg1 arg2'')"}},"required":["name","arguments"]}},{"name":"instance_eval","description":"Evaluates
+        Ruby code within the agent''s own runtime context. Enables: introspection
+        and manipulation of internal state, sending commands to yourself, manipulating
+        the context window. You can think if detritus.rb as a DSL to itself. Ensure
+        to read detritus.rb before creating the code to execute","parameters":{"type":"OBJECT","properties":{"code":{"type":"STRING","description":"Ruby
+        code to execute"}},"required":["code"]}},{"name":"attach_file","description":"Attach
+        files: adds files as an attachment to the next message sent to the llm. useful
+        for pdf, images and other binary data","parameters":{"type":"OBJECT","properties":{"path":{"type":"STRING","description":"Path"}},"required":["path"]}}]}]}'
     headers:
       User-Agent:
       - Faraday v2.14.1
@@ -45,7 +56,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Sat, 14 Feb 2026 21:54:59 GMT
+      - Tue, 17 Mar 2026 01:33:49 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -55,16 +66,16 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1624
+      - gfet4t7; dur=1538
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello
-        again! What can I do for you now?\",\"thoughtSignature\": \"CiQBvj72+25nuPVK5UofwS0VWR83NksAgeakJgs1NCxk9PuksmMKfwG+Pvb7P/vQy8/sP6IH4KC4xGp0mwkcRRMpr3v3ZhariyITnWhZ+wQQ5NQXOos7mYCqccLvu8ho7zwEOExW1o4Jh1dpGNdvwmRKHx9pXeB5dH8edwzcl3FTksHWRdoh1FaHDBF4qfaPF+y2+XwFGEKd9MOXKcKB+HOqLL5FBR8=\"}],\"role\":
+        again! What can I do for you now?\",\"thoughtSignature\": \"CiQBvj72+8V8wcgT6quHAD0xRqOuOtLT7RCx9qzwfZJF198QY1MKewG+Pvb7aiVcJ50kwsH7fBTxJzx/7zeGu1yiiH3gGGLo4HPRFtBOM2f5OnpP4Q2IMlwDF8iVZudAHxou36EizU1q6dgAmOXqiIMKzkaw3I4/GATl6XqEKO89MTDs4AQuQom+4mDDpLugCALeUMlnoz3JlWbh1tBlr+3bNgpXAb4+9vvbTKbn3ZkVttAjZppaB0+AaF4iiUGWeWL5xcdZjPhUrH73FhEwMZLBSIZs5sHIBqBwlZmwSvz0yRN+Wyl6v4dMI8nZNToqQyvyRAox5ZZOHA3B\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        241,\"candidatesTokenCount\": 11,\"totalTokenCount\": 269,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 241}],\"thoughtsTokenCount\": 17},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"M--QaYMchp2q2w-y19PxAg\"}\r\n\r\n"
-  recorded_at: Sat, 14 Feb 2026 21:54:59 GMT
+        494,\"candidatesTokenCount\": 11,\"totalTokenCount\": 536,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 494}],\"thoughtsTokenCount\": 31},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"fa-4ae2OD8nrz7IP8--foQw\"}\r\n\r\n"
+  recorded_at: Tue, 17 Mar 2026 01:33:49 GMT
 recorded_with: VCR 6.4.0

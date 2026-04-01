@@ -5,6 +5,10 @@ require_relative "test_helper"
 class CompactionTest < DetritusTest
   def setup
     super
+    
+    # Create compact skill for these tests
+    create_skill("compact", "Summarize the key points and decisions.", frontmatter: {description: "Compaction skill"})
+    
     $state.provider = "ollama"
     $state.model = "kimi-k2.5:cloud"
     $state.api_base = "http://host.docker.internal:11434/v1"
@@ -204,14 +208,33 @@ class CompactionTest < DetritusTest
     assert_operator $state.chat.messages.count, :<, original_count
   end
 
-  private
+  def test_autocompaction_disabled_when_skill_missing
+    # Remove the skill
+    compact_skill_path = File.join(@test_dir, ".detritus", "skills", "compact", "SKILL.md")
+    File.delete(compact_skill_path) if File.exist?(compact_skill_path)
+    assert_empty find_skills("compact"), "Skill should be missing"
+    
+    # Create a config with compaction enabled
+    File.write(File.join(@test_dir, ".detritus", "config.yml"), "compaction:\n  enabled: true\n")
+    
+    # Re-run configure to trigger the check
+    capture_io { configure }
+    
+    # Compaction should be disabled when skill is missing
+    assert_equal false, $state.compaction["enabled"]
+  end
+
+private
 
   def capture_io
     old_stdout = $stdout
+    old_stderr = $stderr
     $stdout = StringIO.new
+    $stderr = StringIO.new
     yield
-    [$stdout.string]
+    [$stdout.string + $stderr.string]
   ensure
     $stdout = old_stdout
+    $stderr = old_stderr
   end
 end

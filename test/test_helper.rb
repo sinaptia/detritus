@@ -69,15 +69,18 @@ end
 class DetritusTest < Minitest::Test
   def setup
     @original_dir = Dir.pwd
+    @original_home = ENV["HOME"]
     @original_stdout = $stdout
     $stdout = StringIO.new unless ENV["DEBUG"]
     @test_dir = create_test_dir
     Dir.chdir(@test_dir)
+    ENV["HOME"] = @test_dir  # Isolate global config/skills from runtime
     $state.files.clear if defined?($state) && $state
   end
 
   def teardown
     $stdout = @original_stdout if @original_stdout
+    ENV["HOME"] = @original_home if defined?(@original_home) && @original_home
     Dir.chdir(@original_dir) if @original_dir
     FileUtils.rm_rf(@test_dir) if @test_dir && File.exist?(@test_dir)
   end

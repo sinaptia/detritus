@@ -14,12 +14,14 @@ class ConfigurationTest < DetritusTest
   end
 
   def teardown
-    Dir.chdir(@original_dir)
-    ENV["HOME"] = @original_home
+    Dir.chdir(@original_dir) if defined?(@original_dir) && @original_dir
+    ENV["HOME"] = @original_home if defined?(@original_home) && @original_home
     
-    # Restore original history
-    Reline::HISTORY.clear
-    @original_history.each { |line| Reline::HISTORY << line }
+    # Restore original history - only if @original_history is defined
+    if defined?(@original_history) && @original_history
+      Reline::HISTORY.clear
+      @original_history.each { |line| Reline::HISTORY << line }
+    end
     
     super
   end

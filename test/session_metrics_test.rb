@@ -11,6 +11,8 @@ class SessionMetricsTest < DetritusTest
     $state.instructions = "You are a helpful assistant."
     $state.current_chat_id = "test_metrics_#{Time.now.to_i}"
     $state.history_file = File.join(@test_dir, ".detritus", "history")
+    # Disable compaction for tests
+    $state.compaction = {"enabled" => false}
     # Create fresh chat for each test to match cassette requests
     $state.chat = create_chat(persist: false)
     # Reset session to known state

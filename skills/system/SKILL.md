@@ -36,7 +36,7 @@ Use scripts provided by the skill via your `Bash` tool
 ## Available Scripts
 The system skill comes with the following scripts for you to use when needed.
 
-!`find ~/.detritus/skills/system/scripts/ -type f -executable | while read -r script; do desc=$(sed -n '2p' "$script" | sed 's/^# *//'); echo "- $script => $desc"; done`
+!`find ~/.detritus/skills/system/scripts/ -type f -executable 2>/dev/null | while read -r script; do desc=$(sed -n '2p' "$script" | sed 's/^# *//'); echo "- $script => $desc"; done`
 
 ## Sub-Agents
 
@@ -74,7 +74,7 @@ You ALWAYS outline an action plan before proceeding to execution.
 
 You are working from the root directory of a software project: !`pwd`
 
-git status: !`git status`
+git status: !`git status 2>&1`
 
 ### AGENTS.md
-!`cat AGENTS.md`
+!`cat AGENTS.md 2> /dev/null`

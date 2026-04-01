@@ -5,6 +5,8 @@ tmp
 test/tmp
 TODO
 PLAN.yml
+history
+states
 skills/*
 !skills/system
 !skills/compact

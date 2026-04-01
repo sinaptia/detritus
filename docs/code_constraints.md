@@ -13,24 +13,15 @@ git log --oneline -5       # What's been changing lately
 
 ## 2. Know RubyLLM (The Foundation)
 
-You're building ON RubyLLM, not replacing it. Core abstractions you MUST use:
+You're building ON RubyLLM, not replacing it. must have docs at hand: ./docs/ruby_llm.md for a navigational map of the official docs
 
-- `RubyLLM::Chat` - conversation management (don't serialize manually)
-- `chat.messages` - array of Message objects with `role`, `content`, `tool_calls`
-- `msg.input_tokens`, `msg.output_tokens`, `msg.cached_tokens` - real token counts (don't estimate)
-- `RubyLLM::Message.new(role:, content:)` - creating messages
-- `chat.add_message(...)` - appending with proper lifecycle hooks
-
-Reference: https://rubyllm.com/
 
 ## 3. Ruby Idioms > Algorithms
 
-Reach for these before writing loops:
-
-- `array[range]` / `array[start...end]` - slicing (used in compaction)
-- `&.` safe navigation - `hash&.dig("key")` instead of nested `if`
-- `||=` defaults - `config[:key] ||= default`
-- `ensure` blocks - cleanup that always runs
+* Take advantage of Ruby's expressivenes.
+* use Enumerable whenever possible.
+* String, Hash, Array have a load of super expressive methods. Use them.
+* Apply principle of least surprise
 
 ## 4. Configuration Is Debt
 

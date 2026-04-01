@@ -59,4 +59,16 @@ class BashToolTest < DetritusTest
 
     assert_equal({error: "Missing required parameter: command"}, result)
   end
+
+  def capture_io
+    old_stdout = $stdout
+    old_stderr = $stderr
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+    yield
+    [$stdout.string + $stderr.string]
+  ensure
+    $stdout = old_stdout
+    $stderr = old_stderr
+  end
 end

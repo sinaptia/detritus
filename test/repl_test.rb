@@ -257,14 +257,38 @@ class ReplTest < DetritusTest
     assert output.length > 0, "Expected response from skill without args"
   end
 
+  def test_scrub_removes_last_message
+    # Add a message to the chat
+    $state.chat.add_message(role: :user, content: "Test message")
+    initial_count = $state.chat.messages.count
+
+    output = capture_io { handle_prompt("/scrub") }.first
+
+    assert_includes output, "[✓ Last message scrubbed]"
+    assert_equal initial_count - 1, $state.chat.messages.count
+  end
+
+  def test_scrub_with_empty_chat
+    # Clear all messages first
+    $state.chat.messages.clear
+
+    output = capture_io { handle_prompt("/scrub") }.first
+
+    assert_includes output, "[! No messages to scrub]"
+    assert_equal 0, $state.chat.messages.count
+  end
+
   private
 
   def capture_io
     old_stdout = $stdout
+    old_stderr = $stderr
     $stdout = StringIO.new
+    $stderr = StringIO.new
     yield
-    [$stdout.string]
+    [$stdout.string + $stderr.string]
   ensure
     $stdout = old_stdout
+    $stderr = old_stderr
   end
 end
