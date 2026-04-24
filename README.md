@@ -3,6 +3,7 @@
 The simplest, most straightforward, stupidly-effective agent we could come up with.
 Aptly named after Lance Constable Detritus of the Ankh-Morpork City Watch from [Discworld](https://en.wikipedia.org/wiki/Discworld), Detritus is built in about 350 lines of code packing:
 
+* sandboxed YOLO mode by default (docker) 
 * support for multiple models and providers
 * a basic interactive CLI with history
 * standard skills
