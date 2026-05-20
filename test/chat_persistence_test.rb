@@ -36,6 +36,15 @@ class ChatPersistenceTest < DetritusTest
     assert_includes tool_classes, Bash
   end
 
+  def test_creates_codex_chat_with_default_tools
+    $state.provider = "openai_codex"
+    $state.model = "gpt-5.4"
+
+    chat = create_chat
+
+    assert_equal 5, chat.tools.size
+  end
+
   def test_saves_chat_to_detritus_chats_as_marshal
     chat = create_chat(persist: false)
     $state.chat = chat

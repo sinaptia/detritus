@@ -15,14 +15,22 @@
 #model: gemini-2.5-flash
 # api_key: ... # or set GEMINI_API_KEY env var
 
+# Codex
+provider: openai_codex
+model: gpt-5.4
+
 # Ollama
-provider: ollama
+#provider: ollama
 #model: minimax-m2.5:cloud #
 #model: gemini-2.5-flash:cloud
-model: kimi-k2.5:cloud
-#model: glm-5:cloud
+#model: glm-5.1:cloud
 #model: qwen3.5:cloud
-api_base: http://host.docker.internal:11434/v1
+#model: kimi-k2.5:cloud
+#model: gemma4:31b-cloud
+#api_base: http://host.docker.internal:11434/v1
+
+
+
 
 # LMStudio or other OpenAI-compatible
 # provider: openai

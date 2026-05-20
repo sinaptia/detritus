@@ -100,6 +100,15 @@ class ConfigurationTest < DetritusTest
     assert_equal "http://openai-proxy/v1", RubyLLM.config.openai_api_base
   end
 
+  def test_rubyllm_configuration_openai_codex
+    create_config({"provider" => "openai_codex", "model" => "gpt-5.4"})
+
+    configure
+
+    assert_equal ".detritus/codex_auth.json", RubyLLM.config.openai_codex_auth_file
+    assert_equal "https://chatgpt.com/backend-api", RubyLLM.config.openai_codex_api_base
+  end
+
   def test_available_skills_substitution
     create_config({"provider" => "ollama", "model" => "llama3"})
 
